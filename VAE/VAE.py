@@ -5,6 +5,10 @@ import torch.nn.functional as F
 from torch.autograd import Variable
 import math
 
+#TODO:
+#     try removing pooling and increasing depth
+#     only if model capacity turns out to be insufficient
+#     regardless this should eventually be parameterized
 
 class Encoder(nn.Module):
     '''
@@ -42,6 +46,7 @@ class Encoder(nn.Module):
         X = self.drop1(self.nonlinear(self.pool1(self.conv1(X))))
         X = self.drop1(self.nonlinear(self.pool2(self.conv2(X))))
         X = self.drop1(self.nonlinear(self.pool3(self.conv3(X))))
+        #TODO: should be parameterized and not hardcoded
         X = X.view(-1, self.d_factor*4*6*6)
         return self.fc1(X), self.fc2(X)
 
@@ -81,12 +86,12 @@ class Decoder(nn.Module):
         return Z
 
 class VAE(nn.Module):
-    def __init__(self, in_channels=3, d_factor=4, latent_variable_size=100, cuda=False):
+    def __init__(self, in_channels=3, d_factor=4, latent_variable_size=100, droprate=0, cuda=False):
         super(VAE, self).__init__()
         
         self.cuda = cuda
-        self.encode = Encoder(in_channels, d_factor, latent_variable_size)
-        self.decode = Decoder(in_channels, d_factor, latent_variable_size)
+        self.encode = Encoder(in_channels, d_factor, latent_variable_size, droprate=droprate)
+        self.decode = Decoder(in_channels, d_factor, latent_variable_size, droprate=droprate)
 
     def reparametrize(self, mu, logvar):
         std = logvar.mul(0.5).exp_()
@@ -99,7 +104,7 @@ class VAE(nn.Module):
     
 
     def forward(self, X):
-        mu, logvar = self.encode(X)#view(-1, self.nc, self.ndf, self.ngf))
+        mu, logvar = self.encode(X)
         z = self.reparametrize(mu, logvar)
         out = self.decode(z)
-        return out
+        return out, mu, logvar
