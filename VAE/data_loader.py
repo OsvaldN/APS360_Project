@@ -14,8 +14,7 @@ def get_data_loader(batch_size=64):
           [transforms.RandomRotation(5),
            transforms.RandomHorizontalFlip(p=0.5),
            transforms.ColorJitter(brightness=0.2, contrast=0.2, saturation=0.2, hue=0.05),
-           transforms.ToTensor(),
-           transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))])
+           transforms.ToTensor()])
 
   dataset = torchvision.datasets.ImageFolder(root='../../face_data', transform=transform)
   train_loader = torch.utils.data.DataLoader(dataset, batch_size=batch_size, num_workers=1, shuffle=True)
