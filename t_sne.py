@@ -23,21 +23,21 @@ from sklearn.decomposition import TruncatedSVD
 
 #!pip install -U scikit-learn
 
-'''
+"""
 function: get_face_data
 put all face_data in a single batch
-'''
+"""
 def get_face_data():
   transform = transforms.ToTensor()
   dataset = torchvision.datasets.ImageFolder(root='./face_data', transform=transform)
   dataset = torch.utils.data.DataLoader(dataset, batch_size=len(dataset), num_workers=1, shuffle=True)
   return dataset
 
-'''
+"""
 function: plot_t_SNE_Embeddings
 input: trained generator model
 get the low-dimensional embeddings from the model and convert them to 2D distribution of embeddings 
-'''
+"""
 def plot_t_SNE_Embeddings(model):
   dataset = get_face_data()
   embeddings = torch.tensor([])
@@ -56,11 +56,11 @@ def plot_t_SNE_Embeddings(model):
   plot_embedding(emb_pca)
   
 
-'''
+"""
 function: plot_embedding
 input: 2D distribution of embeddings
 plot all the embeddings in a graph 
-'''
+"""
 def plot_embedding(X, title=None):
   #x_min, x_max = np.min(X, 0), np.max(X, 0)
   #X = (X - x_min) / (x_max - x_min)
@@ -70,5 +70,3 @@ def plot_embedding(X, title=None):
       plt.plot(X[i, 0], X[i, 1], 'bo', markersize=0.3)
   if title is not None:
       plt.title(title)
-
-plot_t_SNE_Embeddings(model)
