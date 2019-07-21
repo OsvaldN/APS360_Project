@@ -18,7 +18,7 @@ def plotter(model_name, train_losses, val_losses, save=False, show=True, loss_ty
         plt.show()
     if bool(save):
         plt.savefig(save+'curves.png')
-    plt.cls()
+    plt.clf()
     return
 
 def show_prog(epoch, train_loss, val_loss, time_elapsed):

@@ -9,7 +9,7 @@ import os
 
 # use this function for each epoch
 #TODO: add arg for folder and split to train, valid, test
-def get_data_loader(batch_size=64, set='train'):
+def get_data_loader(batch_size=64, set='train', shuffle=True):
   transform = transforms.Compose(
           [transforms.RandomRotation(5),
            transforms.RandomHorizontalFlip(p=0.5),
@@ -17,5 +17,5 @@ def get_data_loader(batch_size=64, set='train'):
            transforms.ToTensor()])
 
   dataset = torchvision.datasets.ImageFolder(root='../../'+set+'_data', transform=transform)
-  train_loader = torch.utils.data.DataLoader(dataset, batch_size=batch_size, num_workers=1, shuffle=True)
+  train_loader = torch.utils.data.DataLoader(dataset, batch_size=batch_size, num_workers=1, shuffle=shuffle)
   return train_loader

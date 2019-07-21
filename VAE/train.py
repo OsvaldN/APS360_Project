@@ -8,6 +8,7 @@ from torch import optim
 from VAE import Encoder, Decoder, VAE
 from data_loader import get_data_loader
 from util import plotter, save_prog, show_prog
+import matplotlib.pyplot as plt
 
 save_path = os.path.dirname(os.path.realpath(__file__)) + '\\models\\'
 
@@ -17,7 +18,7 @@ parser.add_argument('--disable-cuda', action='store_true', default=True,
                     help='Disable CUDA')
 parser.add_argument('-epochs', action='store', default=10, type=int,
                     help='num epochs')
-parser.add_argument('-batch', action='store', default=4, type=int,
+parser.add_argument('-batch', action='store', default=32, type=int,
                     help='batch size')
 parser.add_argument('-nosave', action='store_true',
                     help='do not save flag')
@@ -83,7 +84,9 @@ if __name__ == '__main__':
     #TODO: add loss control MSE/BCE
     criterion = nn.MSELoss()
     optimizer = optim.Adam(model.parameters(), lr=args.lr)
-    #TODO: add lr decay -> patience or gamma (my preffered but depends on smoothness of loss)
+    #TODO: patience loss
+    lr_lambda = lambda epoch: args.gamma ** (epoch)
+    scheduler = optim.lr_scheduler.LambdaLR(optimizer, lr_lambda)  
     
     def train():
         running_loss = 0
@@ -129,7 +132,7 @@ if __name__ == '__main__':
         train()
         model.eval()
         valid()
-        #scheduler.step(val_losses[epoch])
+        scheduler.step()
 
         if args.prog:
             show_prog(epoch, train_losses[epoch], val_losses[epoch], time.time()-start)
@@ -149,3 +152,34 @@ if __name__ == '__main__':
     print('Model:', model_name, 'completed ; ', epochs, 'epochs', 'in %ds' % (time.time()-start))
     print('min vl_loss: %0.5f at epoch %d' % (min(val_losses), val_losses.argmin()+1))
     print('min tr_loss: %0.5f at epoch %d' % (min(train_losses), train_losses.argmin()+1))
+
+    def show_samples(loader='train'):
+        #TODO: ensure no transforms on these
+        loader = get_data_loader(batch_size=16, set=loader, shuffle=False)
+        for data, _ in loader:
+            inputs = data.to(args.device)
+            outputs,_,_ = model(data)
+            for i in range(16):
+                plt.subplot('481')
+                output = np.transpose(outputs[i].detach().cpu().numpy(), [1,2,0])
+                original = np.transpose(inputs[i].detach().cpu().numpy(), [1,2,0])
+                plt.subplot(4, 8, i+1)
+                plt.imshow(original)  
+                plt.subplot(4, 8, 16+i+1)
+                plt.imshow(output)
+            plt.show()
+
+            break
+
+    show_samples()
+
+'''
+def generate_rand_sample():
+  sample = torch.randn(1, 64, 4, 4)
+  sample = sample.cuda()
+  recon = model.decoder(sample)
+  recon = np.transpose(recon[0].detach().cpu().numpy(), [1,2,0])
+  plt.imshow(recon)
+
+generate_rand_sample()
+'''
