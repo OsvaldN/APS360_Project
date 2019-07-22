@@ -2,13 +2,15 @@ import matplotlib.pyplot as plt
 import numpy as np
 import torch
 
-def plotter(model_name, train_losses, val_losses, save=False, show=True, loss_type='MSELoss'):
+def plotter(model_name, train_losses, train_sim_losses, val_losses, val_sim_losses, save=False, show=True, loss_type='MSELoss'):
     '''
     Plots loss curves
     or saves plot of loss curves
     '''
     plt.plot(train_losses, label='train')
     plt.plot(val_losses, label='val')
+    plt.plot(train_sim_losses, label='train_sim')
+    plt.plot(val_sim_losses, label='val_sim')
     plt.legend()
     plt.xlabel('Epoch')
     plt.ylabel(loss_type)
@@ -26,8 +28,8 @@ def show_prog(epoch, train_loss, val_loss, time_elapsed):
     Prints current epoch's losses and runtime
     '''
     print('E %03d --- RUNTIME: %ds' % (epoch+1, time_elapsed))
-    print('TRAIN  |  loss: %.3f' % train_loss)
-    print('VALID  |  loss: %.3f' % val_loss)
+    print('TRAIN  |  loss: %.4f' % train_loss)
+    print('VALID  |  loss: %.4f' % val_loss)
     
 def save_prog(model, model_path, train_losses, val_losses, epoch, save_rate, best_loss):
     '''

@@ -17,5 +17,5 @@ def get_data_loader(batch_size=64, set='train', shuffle=True):
            transforms.ToTensor()])
 
   dataset = torchvision.datasets.ImageFolder(root='../../'+set+'_data', transform=transform)
-  train_loader = torch.utils.data.DataLoader(dataset, batch_size=batch_size, num_workers=1, shuffle=shuffle)
+  train_loader = torch.utils.data.DataLoader(dataset, batch_size=batch_size, shuffle=shuffle)
   return train_loader
