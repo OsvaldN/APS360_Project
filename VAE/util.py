@@ -39,5 +39,8 @@ def save_prog(model, model_path, train_losses, val_losses, epoch, save_rate, bes
     np.save(model_path +'train_losses', train_losses)
     np.save(model_path +'val_losses', val_losses)
 
-    if (epoch+1) % save_rate ==0 or best_loss: #save model dict
+    if (epoch+1) % save_rate == 0: #save model dict at save_rate epochs
         torch.save(model.state_dict(), model_path + 'model_epoch%s' % (epoch+1))
+
+    if best_loss: #save model dict at best loss
+        torch.save(model.state_dict(), model_path + 'best_loss')
