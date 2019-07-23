@@ -59,7 +59,6 @@ model_name = '_'.join(['db_'+str(args.dboost), 'l_'+str(args.latent), 'df_'+str(
                         'lr_'+str(args.lr), 'g_'+str(args.gamma)])
                        
                        
-
 if __name__ == '__main__':
 
     # Create target Directory if don't exist
@@ -125,13 +124,13 @@ if __name__ == '__main__':
             #   real photo
             output = discriminator(batch)
             DR_loss = criterion(output, ones_label)
-            D_acc_epoch += ( (torch.round(output) == ones_label).sum() / torch.numel(ones_label) )/2
+            D_acc_epoch += ((torch.round(output) == ones_label).sum().cpu().numpy() / torch.numel(ones_label) )/2
 
             #   reconstructed photo
             output = discriminator(rec_enc)
             DF_loss = criterion(output, zeros_label)
-            D_acc_epoch += ( (torch.round(output) == zeros_label).sum() / torch.numel(zeros_label) )/2
-            
+            D_acc_epoch += ( (torch.round(output) == zeros_label).sum().cpu().numpy() / torch.numel(zeros_label) )/2
+
             #   Decoded noise
             output = discriminator(rec_noise)
             DN_loss = criterion(output, zeros_label)
