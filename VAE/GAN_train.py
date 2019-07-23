@@ -34,7 +34,7 @@ parser.add_argument('-l', '--latent', action='store', default=500, type=int,
                     help='latent embedding size')
 parser.add_argument('-fcl', action='store', default=32, type=int,
                     help='discriminator fcl size')
-parser.add_argument('-db', '-dboost', action='store', default=2, type=float,
+parser.add_argument('-db', '--dboost', action='store', default=2, type=float,
                     help='discriminator lr factor')
 parser.add_argument('-beta', action='store', default=0.001, type=float,
                     help='Encoder loss param')
