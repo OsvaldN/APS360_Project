@@ -11,7 +11,10 @@ from data_loader import get_data_loader
 from util import GANplotter, GANsave_prog, GANshow_prog
 import matplotlib.pyplot as plt
 
-save_path = os.path.dirname(os.path.realpath(__file__)) + '\\GAN_models\\'
+#   windows
+#save_path = os.path.dirname(os.path.realpath(__file__)) + '\\GAN_models\\'
+#   linux
+save_path = os.path.dirname(os.path.realpath(__file__)) + '/GAN_models/'
 
 ######## __GENERAL__ ########
 parser = argparse.ArgumentParser(description='training control')
