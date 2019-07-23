@@ -29,11 +29,13 @@ parser.add_argument('-nosave', action='store_true',
 parser.add_argument('-prog', action='store_true',
                     help='show progress')
 
-######## __VAEGAN__ ########
+######## __VAE-GAN__ ########
 parser.add_argument('-l', '--latent', action='store', default=500, type=int,
                     help='latent embedding size')
 parser.add_argument('-fcl', action='store', default=32, type=int,
                     help='discriminator fcl size')
+parser.add_argument('-db', '-dboost', action='store', default=2, type=float,
+                    help='discriminator lr factor')
 parser.add_argument('-beta', action='store', default=0.001, type=float,
                     help='Encoder loss param')
 parser.add_argument('-df', '--dilation', action='store', default=4, type=int,
@@ -48,15 +50,14 @@ parser.add_argument('-b1', action='store', default=0.9, type=float,
                     help='momentum')
 parser.add_argument('-b2', action='store', default=0.999, type=float,
                     help='momentum')
-parser.add_argument('-gamma', action='store', default=0.9, type=float,
+parser.add_argument('-gamma', action='store', default=0.99, type=float,
                     help='learning rate')
 args = parser.parse_args()
 
-
-model_name = '_'.join(['b_'+str(args.batch),'dr_'+str(args.drop),
-                          'l_'+str(args.latent), 'df_'+str(args.dilation),
-                          'b1_'+str(args.b1), 'b2_'+str(args.b2),
-                          'lr_'+str(args.lr), 'g_'+str(args.gamma)])
+model_name = '_'.join(['db_'+str(args.dboost), 'l_'+str(args.latent), 'df_'+str(args.dilation), 'kld_'+str(args.beta),
+                        'b1_'+str(args.b1), 'b2_'+str(args.b2),
+                        'lr_'+str(args.lr), 'g_'+str(args.gamma)])
+                       
                        
 
 if __name__ == '__main__':
@@ -91,7 +92,6 @@ if __name__ == '__main__':
     train_sim_losses = np.zeros(epochs)
     val_sim_losses = np.zeros(epochs)
 
-    #train_loader = get_data_loader(batch_size=batch_size, set='strain')
     train_loader = get_data_loader(batch_size=batch_size, set='train')
     valid_loader = get_data_loader(batch_size=batch_size, set='valid')
 
@@ -102,12 +102,11 @@ if __name__ == '__main__':
     criterion = nn.MSELoss()
     VAE_criterion = nn.MSELoss()
     G_optimizer = optim.Adam(generator.parameters(), lr=args.lr)
-    D_optimizer = optim.Adam(discriminator.parameters(), lr=args.lr)
+    D_optimizer = optim.Adam(discriminator.parameters(), lr=args.lr * args.dboost)
     #TODO: patience loss
     lr_lambda = lambda epoch: args.gamma ** (epoch)
     G_scheduler = optim.lr_scheduler.LambdaLR(G_optimizer, lr_lambda)
     D_scheduler = optim.lr_scheduler.LambdaLR(D_optimizer, lr_lambda)  
-    Discriminator = Discriminator()
 
     def train():
         G_loss, D_loss, VAE_loss, sim_loss = 0, 0, 0, 0
@@ -218,7 +217,8 @@ if __name__ == '__main__':
         discriminator.eval()
         valid()
         #TODO: what type of LR decay for GAN?
-        #scheduler.step()
+        G_scheduler.step()
+        D_scheduler.step()
 
         if args.prog:
             GANshow_prog(epoch, G_losses[epoch], G_acc[epoch], D_losses[epoch], D_acc[epoch],
