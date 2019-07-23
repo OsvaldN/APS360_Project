@@ -44,7 +44,7 @@ parser.add_argument('-dr', '--drop', action='store', default=0, type=float,
                     help='droprate')
 
 ######## __OPTIM__ ########
-parser.add_argument('-lr', action='store', default=0.001, type=float,
+parser.add_argument('-lr', action='store', default=0.0005, type=float,
                     help='learning rate')
 parser.add_argument('-b1', action='store', default=0.9, type=float,
                     help='momentum')
@@ -101,8 +101,8 @@ if __name__ == '__main__':
     #TODO: add loss control MSE/BCE
     criterion = nn.MSELoss()
     VAE_criterion = nn.MSELoss()
-    G_optimizer = optim.Adam(generator.parameters(), lr=args.lr)
-    D_optimizer = optim.Adam(discriminator.parameters(), lr=args.lr * args.dboost)
+    G_optimizer = optim.Adam(generator.parameters(), lr=args.lr / args.dboost)
+    D_optimizer = optim.Adam(discriminator.parameters(), lr=args.lr)
     #TODO: patience loss
     lr_lambda = lambda epoch: args.gamma ** (epoch)
     G_scheduler = optim.lr_scheduler.LambdaLR(G_optimizer, lr_lambda)
