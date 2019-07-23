@@ -15,7 +15,7 @@ save_path = os.path.dirname(os.path.realpath(__file__)) + '\\GAN_models\\'
 
 ######## __GENERAL__ ########
 parser = argparse.ArgumentParser(description='training control')
-parser.add_argument('--disable-cuda', action='store_true', default=True,
+parser.add_argument('--disable-cuda', action='store_true', default=False,
                     help='Disable CUDA')
 parser.add_argument('-epochs', action='store', default=10, type=int,
                     help='num epochs')
