@@ -126,19 +126,19 @@ if __name__ == '__main__':
             output = discriminator(batch)
             DR_loss = criterion(output, ones_label)
             D_acc_epoch += ((torch.round(output) == ones_label).sum().cpu().numpy() / torch.numel(ones_label) )/6
-            G_acc_epoch += 1 - ((torch.round(output) == ones_label).sum().cpu().numpy() / torch.numel(ones_label) )/6
+            G_acc_epoch += (1 - ((torch.round(output) == ones_label).sum().cpu().numpy() / torch.numel(ones_label) ))/6
 
             #   reconstructed photo
             output = discriminator(rec_enc)
             DF_loss = criterion(output, zeros_label)
             D_acc_epoch += ( (torch.round(output) == zeros_label).sum().cpu().numpy() / torch.numel(zeros_label) )/6
-            G_acc_epoch += 1 - ( (torch.round(output) == zeros_label).sum().cpu().numpy() / torch.numel(zeros_label) )/6
+            G_acc_epoch += (1 - ( (torch.round(output) == zeros_label).sum().cpu().numpy() / torch.numel(zeros_label) ))/6
 
             #   Decoded noise
             output = discriminator(rec_noise)
             DN_loss = criterion(output, zeros_label)
             D_acc_epoch += ( (torch.round(output) == zeros_label).sum().cpu().numpy() / torch.numel(zeros_label) )/6
-            G_acc_epoch += 1- ( (torch.round(output) == zeros_label).sum().cpu().numpy() / torch.numel(zeros_label) )/6
+            G_acc_epoch += (1- ( (torch.round(output) == zeros_label).sum().cpu().numpy() / torch.numel(zeros_label) ))/6
 
             D_l = DR_loss + DF_loss + DN_loss
             D_loss += D_l
@@ -152,19 +152,19 @@ if __name__ == '__main__':
             output = discriminator(batch)
             DR_err = criterion(output, zeros_label)
             G_acc_epoch += ( (torch.round(output) == zeros_label).sum().cpu().numpy() / torch.numel(zeros_label) )/6
-            D_acc_epoch += 1- ( (torch.round(output) == zeros_label).sum().cpu().numpy() / torch.numel(zeros_label) )/6
+            D_acc_epoch += (1- ( (torch.round(output) == zeros_label).sum().cpu().numpy() / torch.numel(zeros_label) ))/6
 
             #   generated photo
             output = discriminator(rec_enc)
             DF_err = criterion(output, ones_label)
             G_acc_epoch += ( (torch.round(output) == ones_label).sum().cpu().numpy() / torch.numel(zeros_label) )/6
-            D_acc_epoch += 1- ( (torch.round(output) == ones_label).sum().cpu().numpy() / torch.numel(zeros_label) )/6
+            D_acc_epoch += (1- ( (torch.round(output) == ones_label).sum().cpu().numpy() / torch.numel(zeros_label) ))/6
 
             #   decoded noise
             output = discriminator(rec_noise)
             DN_err = criterion(output, ones_label)
             G_acc_epoch += ( (torch.round(output) == ones_label).sum().cpu().numpy() / torch.numel(zeros_label) )/6
-            D_acc_epoch += 1- ( (torch.round(output) == ones_label).sum().cpu().numpy() / torch.numel(zeros_label) )/6
+            D_acc_epoch += (1- ( (torch.round(output) == ones_label).sum().cpu().numpy() / torch.numel(zeros_label) ))/6
 
             G_l = DR_err + DF_err + DN_err
             G_loss += G_l
