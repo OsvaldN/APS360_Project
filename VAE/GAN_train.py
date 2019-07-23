@@ -95,7 +95,7 @@ if __name__ == '__main__':
     valid_loader = get_data_loader(batch_size=batch_size, set='valid')
 
     generator = VAE(d_factor=args.dilation, latent_variable_size=args.latent, cuda=(not args.disable_cuda)).to(args.device)
-    generator.load_state_dict(os.path.dirname(os.path.realpath(__file__)) + '/VAE_models/l_500_df_4_kld_0.01_b1_0.9_b2_0.999_lr_0.001_g_0.99/best_loss')
+    generator.load_state_dict(torchload(os.path.dirname(os.path.realpath(__file__)) + '/VAE_models/l_500_df_4_kld_0.01_b1_0.9_b2_0.999_lr_0.001_g_0.99/best_loss'))
     discriminator = Discriminator(d_factor=args.dilation, fcl_size=args.fcl).to(args.device)
 
     #TODO: add loss control MSE/BCE
