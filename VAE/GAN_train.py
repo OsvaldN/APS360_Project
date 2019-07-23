@@ -92,8 +92,8 @@ if __name__ == '__main__':
     train_loader = get_data_loader(batch_size=batch_size, set='train')
     valid_loader = get_data_loader(batch_size=batch_size, set='valid')
 
-    generator = VAE(d_factor=args.dilation, latent_variable_size=args.latent, cuda=(not args.disable_cuda))
-    discriminator = Discriminator(d_factor=args.dilation, fcl_size=args.fcl)
+    generator = VAE(d_factor=args.dilation, latent_variable_size=args.latent, cuda=(not args.disable_cuda)).to(args.device)
+    discriminator = Discriminator(d_factor=args.dilation, fcl_size=args.fcl).to(args.device)
 
     #TODO: add loss control MSE/BCE
     criterion = nn.MSELoss()
@@ -110,6 +110,7 @@ if __name__ == '__main__':
         G_loss, D_loss, VAE_loss, sim_loss = 0, 0, 0, 0
         D_acc_epoch = 0
         for batch, _ in train_loader:
+            batch = batch.to(args.device)
             ones_label = Variable(torch.ones(batch_size, 1))
             zeros_label = Variable(torch.zeros(batch_size, 1))
             
@@ -187,6 +188,7 @@ if __name__ == '__main__':
     def valid():
         VAE_loss, sim_loss = 0, 0
         for batch, _ in valid_loader:
+            batch = batch.to(args.device)
             # pass to GPU if available
             batch = batch.to(args.device)
             
