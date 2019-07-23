@@ -8,14 +8,17 @@ import math
 class Encoder(nn.Module):
     '''
     '''
-    def __init__(self, in_channels=3, d_factor=4, latent_variable_size=100):
+    def __init__(self, in_channels=3, d_factor=4, latent_variable_size=100, activation='leakyrelu'):
         super(Encoder, self).__init__()
 
         self.in_channels = in_channels
         self.latent_variable_size = latent_variable_size
         self.d_factor = d_factor
         
-        self.nonlinear = nn.SELU()
+        if activation == 'leakyrelu':
+            self.nonlinear = nn.LeakyReLU()
+        elif activation == 'SELU':
+            self.nonlinear = nn.SELU()
         
         self.bn1 = nn.BatchNorm2d(in_channels)
         self.conv1 = nn.Conv2d(in_channels, d_factor, kernel_size=4, stride=2, padding=1)
@@ -45,14 +48,17 @@ class Encoder(nn.Module):
 class Decoder(nn.Module):
     '''
     '''
-    def __init__(self, out_channels=3, c_factor=4, latent_variable_size=100, droprate=0):
+    def __init__(self, out_channels=3, c_factor=4, latent_variable_size=100, droprate=0, activation='leakyrelu'):
         super(Decoder, self).__init__()
 
         self.out_channels = out_channels
         self.latent_variable_size = latent_variable_size
         self.c_factor = c_factor
         
-        self.nonlinear = nn.SELU()
+        if activation == 'leakyrelu':
+            self.nonlinear = nn.LeakyReLU()
+        elif activation == 'SELU':
+            self.nonlinear = nn.SELU()
 
         self.drop0 = nn.Dropout(droprate)
         self.fc1 = nn.Linear(latent_variable_size, c_factor*8*4*4)
@@ -83,12 +89,12 @@ class Decoder(nn.Module):
 class VAE(nn.Module):
     '''
     '''
-    def __init__(self, in_channels=3, d_factor=4, latent_variable_size=100, droprate=0, cuda=False):
+    def __init__(self, in_channels=3, d_factor=4, latent_variable_size=100, droprate=0, cuda=False, activation='leakyrelu'):
         super(VAE, self).__init__()
         
         self.cuda = cuda
-        self.encode = Encoder(in_channels, d_factor, latent_variable_size)
-        self.decode = Decoder(in_channels, d_factor, latent_variable_size, droprate=droprate)
+        self.encode = Encoder(in_channels, d_factor, latent_variable_size, activation=activation)
+        self.decode = Decoder(in_channels, d_factor, latent_variable_size, droprate=droprate, activation=activation)
 
     def reparametrize(self, mu, logvar):
         std = logvar.mul(0.5).exp_()

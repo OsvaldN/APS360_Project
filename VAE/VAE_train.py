@@ -29,11 +29,11 @@ parser.add_argument('-prog', action='store_true',
                     help='show progress')
 
 ######## __VAE__ ########
-parser.add_argument('-l', '--latent', action='store', default=500, type=int,
+parser.add_argument('-l', '--latent', action='store', default=1000, type=int,
                     help='latent embedding size')
 parser.add_argument('-kld', action='store', default=0.05, type=float,
                     help='KLD loss weight')
-parser.add_argument('-df', '--dilation', action='store', default=4, type=int,
+parser.add_argument('-df', '--dilation', action='store', default=6, type=int,
                     help='depth dilation factor')
 parser.add_argument('-dr', '--drop', action='store', default=0, type=float,
                     help='droprate')
@@ -90,9 +90,13 @@ if __name__ == '__main__':
     #TODO: add loss control MSE/BCE
     criterion = nn.MSELoss()
     optimizer = optim.Adam(model.parameters(), lr=args.lr)
-    #TODO: patience loss
-    lr_lambda = lambda epoch: args.gamma ** (epoch)
-    scheduler = optim.lr_scheduler.LambdaLR(optimizer, lr_lambda)  
+
+    # LR decay if specified, else decay on plataeu
+    if args.gamma:
+        lr_lambda = lambda epoch: args.gamma ** (epoch)
+        scheduler = optim.lr_scheduler.LambdaLR(optimizer, lr_lambda)
+    else:
+        scheduler = optim.lr_scheduler.ReduceLROnPlateau(optimizer, patience=10, factor=0.1, verbose=True)
 
     def train():
         running_loss = 0
@@ -148,11 +152,18 @@ if __name__ == '__main__':
         train()
         model.eval()
         valid()
-        scheduler.step()
 
+        # pick appropriate LR decay
+        if args.gamma:
+            scheduler.step()
+        else:
+            scheduler.step(val_losses[epoch])
+
+        # show progress every epoch if enabled
         if args.prog:
-            show_prog(epoch, train_losses[epoch], val_losses[epoch], time.time()-start)
+            show_prog(epoch, train_losses[epoch], train_sim_losses[epoch], val_losses[epoch], val_sim_losses[epoch], time.time()-start)
         
+        # store best losses
         best_loss = val_losses[epoch] == min(val_losses[:epoch+1])
         best_t_loss = train_losses[epoch] == min(train_losses[:epoch+1])
 
@@ -190,7 +201,7 @@ if __name__ == '__main__':
                 plt.axis('off')
                 plt.imshow(output)
             
-            is save:
+            if save:
                 plt.savefig(save_path+'faces.png')
             plt.show()
 

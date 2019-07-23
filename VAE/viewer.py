@@ -15,9 +15,13 @@ if __name__ == '__main__':
 
     save = False
 
-    model = VAE(d_factor=4, latent_variable_size=500, cuda=False)
-    model.load_state_dict(torch.load('/home/osvald/Projects/APS360/APS360_Project/VAE/GAN_models/db_2.0_l_500_df_4_kld_0.001_b1_0.9_b2_0.999_lr_0.001_g_0.99/gen_epoch80'))
+    latent = 500
+    model = VAE(d_factor=4, latent_variable_size=latent, cuda=False, activation='SELU')
+    #model.load_state_dict(torch.load('/home/osvald/Projects/APS360/APS360_Project/VAE/GAN_models/db_2.0_l_500_df_4_kld_0.001_b1_0.9_b2_0.999_lr_0.001_g_0.99/gen_epoch80'))
+    model.load_state_dict(torch.load('/home/osvald/Projects/APS360/APS360_Project/VAE/VAE_models/l_500_df_4_kld_0.01_b1_0.9_b2_0.999_lr_0.001_g_0.99/model_epoch200')) # SELU
+    #model.load_state_dict(torch.load('/home/osvald/Projects/APS360/APS360_Project/VAE/VAE_models/l_1000_df_8_kld_0.1_b1_0.9_b2_0.999_lr_0.001_g_0.0/best_loss'))   # leakyrelu
     model.eval()
+
     
     def show_samples(loader='train'):
         #TODO: ensure no transforms on these
@@ -44,6 +48,28 @@ if __name__ == '__main__':
 
             break
 
+    def generate():
+
+        plt.clf()
+        plt.subplot('281')
+
+        Guassi_boi = torch.cat((torch.randn(8, latent) * 0.25, torch.randn(8, latent) * 0.50,
+                                torch.randn(8, latent) * 0.75, torch.randn(8, latent) * 1.00,
+                                torch.randn(8, latent) * 1.25, torch.randn(8, latent) * 1.50,
+                                torch.randn(8, latent) * 1.75, torch.randn(8, latent) * 2.00), dim=0)
+        outputs = model.decode(Guassi_boi)
+
+        for i in range(64):
+            output = np.transpose(outputs[i].detach().cpu().numpy(), [1,2,0])
+            plt.subplot(8, 8, i+1)
+            plt.axis('off')
+            plt.imshow(output)  
+        
+        if save:
+            plt.savefig(save_path+'faces.png')
+        plt.show()
+
+    generate()
     show_samples()
 
 '''

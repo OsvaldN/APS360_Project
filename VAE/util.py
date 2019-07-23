@@ -107,13 +107,13 @@ def GANshow_prog(epoch, G_loss, G_acc, D_loss, D_acc, train_loss, train_sim_loss
     print('TRAIN  |  loss: %.4f   |  sim: %.4f' % (train_loss, train_sim_loss))
     print('VALID  |  loss: %.4f   |  sim: %.4f' % (val_loss, val_sim_loss))
 
-def show_prog(epoch, train_loss, val_loss, time_elapsed):
+def show_prog(epoch, train_loss, train_sim_loss, val_loss, val_sim_loss, time_elapsed):
     '''
     Prints current epoch's losses and runtime
     '''
     print('E %03d --- RUNTIME: %ds' % (epoch+1, time_elapsed))
-    print('TRAIN  |  loss: %.4f' % train_loss)
-    print('VALID  |  loss: %.4f' % val_loss)
+    print('TRAIN  |  loss: %.4f  |  mse_loss: %.4f  |  kld_loss: %.4f' % (train_loss, train_sim_loss, train_loss-train_sim_loss))
+    print('VALID  |  loss: %.4f  |  mse_loss: %.4f  |  kld_loss: %.4f' % (val_loss, val_sim_loss, val_loss-val_sim_loss))
     
 def save_prog(model, model_path, train_losses, val_losses, epoch, save_rate, best_loss):
     '''
