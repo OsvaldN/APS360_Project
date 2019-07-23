@@ -110,7 +110,7 @@ if __name__ == '__main__':
 
     def train():
         G_loss, D_loss, VAE_loss, sim_loss = 0, 0, 0, 0
-        D_acc_epoch = 0
+        D_acc_epoch, G_acc_epoch = 0, 0
         for batch, _ in train_loader:
             batch = batch.to(args.device)
             ones_label = Variable(torch.ones(batch.shape[0], 1))
