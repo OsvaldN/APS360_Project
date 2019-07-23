@@ -95,6 +95,7 @@ if __name__ == '__main__':
     valid_loader = get_data_loader(batch_size=batch_size, set='valid')
 
     generator = VAE(d_factor=args.dilation, latent_variable_size=args.latent, cuda=(not args.disable_cuda)).to(args.device)
+    generator.load_state_dict(os.path.dirname(os.path.realpath(__file__)) + '/VAE_models/l_500_df_4_kld_0.01_b1_0.9_b2_0.999_lr_0.001_g_0.99/best_loss')
     discriminator = Discriminator(d_factor=args.dilation, fcl_size=args.fcl).to(args.device)
 
     #TODO: add loss control MSE/BCE
@@ -124,17 +125,21 @@ if __name__ == '__main__':
             #   real photo
             output = discriminator(batch)
             DR_loss = criterion(output, ones_label)
-            D_acc_epoch += ((torch.round(output) == ones_label).sum().cpu().numpy() / torch.numel(ones_label) )/2
+            D_acc_epoch += ((torch.round(output) == ones_label).sum().cpu().numpy() / torch.numel(ones_label) )/6
+            G_acc_epoch += 1 - ((torch.round(output) == ones_label).sum().cpu().numpy() / torch.numel(ones_label) )/6
 
             #   reconstructed photo
             output = discriminator(rec_enc)
             DF_loss = criterion(output, zeros_label)
-            D_acc_epoch += ( (torch.round(output) == zeros_label).sum().cpu().numpy() / torch.numel(zeros_label) )/2
+            D_acc_epoch += ( (torch.round(output) == zeros_label).sum().cpu().numpy() / torch.numel(zeros_label) )/6
+            G_acc_epoch += 1 - ( (torch.round(output) == zeros_label).sum().cpu().numpy() / torch.numel(zeros_label) )/6
 
             #   Decoded noise
             output = discriminator(rec_noise)
             DN_loss = criterion(output, zeros_label)
-            
+            D_acc_epoch += ( (torch.round(output) == zeros_label).sum().cpu().numpy() / torch.numel(zeros_label) )/6
+            G_acc_epoch += 1- ( (torch.round(output) == zeros_label).sum().cpu().numpy() / torch.numel(zeros_label) )/6
+
             D_l = DR_loss + DF_loss + DN_loss
             D_loss += D_l
 
@@ -146,15 +151,20 @@ if __name__ == '__main__':
             #   real photo
             output = discriminator(batch)
             DR_err = criterion(output, zeros_label)
+            G_acc_epoch += ( (torch.round(output) == zeros_label).sum().cpu().numpy() / torch.numel(zeros_label) )/6
+            D_acc_epoch += 1- ( (torch.round(output) == zeros_label).sum().cpu().numpy() / torch.numel(zeros_label) )/6
 
             #   generated photo
             output = discriminator(rec_enc)
             DF_err = criterion(output, ones_label)
+            G_acc_epoch += ( (torch.round(output) == ones_label).sum().cpu().numpy() / torch.numel(zeros_label) )/6
+            D_acc_epoch += 1- ( (torch.round(output) == ones_label).sum().cpu().numpy() / torch.numel(zeros_label) )/6
 
             #   decoded noise
             output = discriminator(rec_noise)
             DN_err = criterion(output, ones_label)
-            
+            G_acc_epoch += ( (torch.round(output) == ones_label).sum().cpu().numpy() / torch.numel(zeros_label) )/6
+            D_acc_epoch += 1- ( (torch.round(output) == ones_label).sum().cpu().numpy() / torch.numel(zeros_label) )/6
 
             G_l = DR_err + DF_err + DN_err
             G_loss += G_l
@@ -181,7 +191,7 @@ if __name__ == '__main__':
         train_losses[epoch] = VAE_loss/len(train_loader)
         train_sim_losses[epoch] = sim_loss/len(train_loader)
         D_acc[epoch] = D_acc_epoch/len(train_loader)
-        G_acc[epoch] = 1- D_acc_epoch/len(train_loader)
+        G_acc[epoch] = G_acc_epoch/len(train_loader)
         D_losses[epoch] = D_loss/len(train_loader)
         G_losses[epoch] = G_loss/len(train_loader)
 
