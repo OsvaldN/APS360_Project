@@ -190,7 +190,8 @@ if __name__ == '__main__':
                 plt.axis('off')
                 plt.imshow(output)
             
-            plt.savefig(save_path+'faces.png')
+            is save:
+                plt.savefig(save_path+'faces.png')
             plt.show()
 
             break

@@ -8,10 +8,10 @@ from torch import optim
 from torch.autograd import Variable
 from VAE_GAN import Encoder, Decoder, VAE, Discriminator, reparametrize
 from data_loader import get_data_loader
-from util import plotter, save_prog, show_prog
+from util import GANplotter, GANsave_prog, GANshow_prog
 import matplotlib.pyplot as plt
 
-save_path = os.path.dirname(os.path.realpath(__file__)) + '\\models\\'
+save_path = os.path.dirname(os.path.realpath(__file__)) + '\\GAN_models\\'
 
 ######## __GENERAL__ ########
 parser = argparse.ArgumentParser(description='training control')
@@ -19,7 +19,7 @@ parser.add_argument('--disable-cuda', action='store_true', default=True,
                     help='Disable CUDA')
 parser.add_argument('-epochs', action='store', default=10, type=int,
                     help='num epochs')
-parser.add_argument('-batch', action='store', default=32, type=int,
+parser.add_argument('-batch', action='store', default=128, type=int,
                     help='batch size')
 parser.add_argument('-nosave', action='store_true',
                     help='do not save flag')
@@ -31,9 +31,9 @@ parser.add_argument('-l', '--latent', action='store', default=500, type=int,
                     help='latent embedding size')
 parser.add_argument('-fcl', action='store', default=32, type=int,
                     help='discriminator fcl size')
-parser.add_argument('-beta', action='store', default=5, type=float,
+parser.add_argument('-beta', action='store', default=0.001, type=float,
                     help='Encoder loss param')
-parser.add_argument('-df', '--dilation', action='store', default=32, type=int,
+parser.add_argument('-df', '--dilation', action='store', default=4, type=int,
                     help='depth dilation factor')
 parser.add_argument('-dr', '--drop', action='store', default=0, type=float,
                     help='droprate')
@@ -81,12 +81,16 @@ if __name__ == '__main__':
 
     G_losses = np.zeros(epochs)
     D_losses = np.zeros(epochs)
+    G_acc = np.zeros(epochs)
+    D_acc = np.zeros(epochs)
     train_losses = np.zeros(epochs)
     val_losses = np.zeros(epochs)
+    train_sim_losses = np.zeros(epochs)
+    val_sim_losses = np.zeros(epochs)
 
     #train_loader = get_data_loader(batch_size=batch_size, set='strain')
-    train_loader = get_data_loader(batch_size=batch_size, set='stest')
-    valid_loader = get_data_loader(batch_size=batch_size, set='svalid')
+    train_loader = get_data_loader(batch_size=batch_size, set='train')
+    valid_loader = get_data_loader(batch_size=batch_size, set='valid')
 
     generator = VAE(d_factor=args.dilation, latent_variable_size=args.latent, cuda=(not args.disable_cuda))
     discriminator = Discriminator(d_factor=args.dilation, fcl_size=args.fcl)
@@ -103,10 +107,11 @@ if __name__ == '__main__':
     Discriminator = Discriminator()
 
     def train():
-        G_losses, D_losses, VAE_losses = 0, 0, 0
+        G_loss, D_loss, VAE_loss, sim_loss = 0, 0, 0, 0
+        D_acc_epoch = 0
         for batch, _ in train_loader:
-            ones_label = Variable(torch.ones(batch_size))
-            zeros_label = Variable(torch.zeros(batch_size))
+            ones_label = Variable(torch.ones(batch_size, 1))
+            zeros_label = Variable(torch.zeros(batch_size, 1))
             
             rec_enc, mu, logvar = generator(batch)
             
@@ -117,75 +122,91 @@ if __name__ == '__main__':
             #   real photo
             output = discriminator(batch)
             DR_loss = criterion(output, ones_label)
+            D_acc_epoch += ( (torch.round(output) == ones_label).sum() / torch.numel(ones_label) )/2
+
             #   reconstructed photo
             output = discriminator(rec_enc)
             DF_loss = criterion(output, zeros_label)
+            D_acc_epoch += ( (torch.round(output) == zeros_label).sum() / torch.numel(zeros_label) )/2
+            
             #   Decoded noise
             output = discriminator(rec_noise)
             DN_loss = criterion(output, zeros_label)
             
-            D_loss = DR_loss + DF_loss + DN_loss
-            D_losses += D_loss
+            D_l = DR_loss + DF_loss + DN_loss
+            D_loss += D_l
 
             D_optimizer.zero_grad()
-            D_loss.backward(retain_graph=True)
+            D_l.backward(retain_graph=True)
             D_optimizer.step()
             
             # train decoder
             #   real photo
             output = discriminator(batch)
             DR_err = criterion(output, ones_label)
+
             #   generated photo
             output = discriminator(rec_enc)
             DF_err = criterion(output, zeros_label)
+
             #   decoded noise
             output = discriminator(rec_noise)
             DN_err = criterion(output, zeros_label)
             
+
             dis_loss = DR_err + DF_err + DN_err
-            G_loss = -(dis_loss)
-            G_losses += G_loss
+            G_l = -(dis_loss)
+            G_loss += G_l
 
             rec_loss = VAE_criterion(rec_enc, batch)
+            sim_loss += rec_loss
 
             G_optimizer.zero_grad()
-            G_loss.backward(retain_graph=True)
+            G_l.backward(retain_graph=True)
             G_optimizer.step()
             
             # train encoder 
-            # #TODO: understand this lol
             prior_loss = 1 + logvar - mu.pow(2) - logvar.exp()
             prior_loss = (-0.5 * torch.sum(prior_loss))/torch.numel(mu)
-            VAE_loss = prior_loss + args.beta * rec_loss
-            VAE_losses += VAE_loss
+            VAE_l = (args.beta * prior_loss) + rec_loss
+            VAE_loss += VAE_l
 
             G_optimizer.zero_grad()
-            VAE_loss.backward(retain_graph=True)
+            VAE_l.backward(retain_graph=True)
             G_optimizer.step()
         
         #TODO: update this loss tracking
         # this is just to match VAE train.py
-        train_losses[epoch] = VAE_losses/len(train_loader)
+        train_losses[epoch] = VAE_loss/len(train_loader)
+        train_sim_losses[epoch] = sim_loss/len(train_loader)
+        D_acc[epoch] = D_acc_epoch/len(train_loader)
+        G_acc[epoch] = 1- D_acc_epoch/len(train_loader)
+        D_losses[epoch] = D_loss/len(train_loader)
+        G_losses[epoch] = G_loss/len(train_loader)
 
     def valid():
-        running_loss = 0
+        VAE_loss, sim_loss = 0, 0
         for batch, _ in valid_loader:
             # pass to GPU if available
             batch = batch.to(args.device)
             
             # run network
-            output, mu, logvar = generator(batch)
-            loss = criterion(output, batch)
-            
-            # store loss
-            running_loss += loss.cpu().data.numpy()
+            rec_enc, mu, logvar = generator(batch)
+            rec_loss = VAE_criterion(rec_enc, batch)
+            sim_loss += rec_loss
+
+            prior_loss = 1 + logvar - mu.pow(2) - logvar.exp()
+            prior_loss = (-0.5 * torch.sum(prior_loss))/torch.numel(mu)
+            VAE_l = (args.beta * prior_loss) + rec_loss
+            VAE_loss += VAE_l
     
-        val_losses[epoch] = running_loss/len(valid_loader)
+        val_losses[epoch] = VAE_loss/len(valid_loader)
+        val_sim_losses[epoch] = sim_loss/len(valid_loader)
 
     #TODO: return lowest validation loss for hp tuning with hyperopt
     start = time.time()
     for epoch in range(epochs):
-        train_loader = get_data_loader(batch_size=batch_size, set='strain')
+        train_loader = get_data_loader(batch_size=batch_size, set='train')
         generator.train()
         discriminator.train()
         train()
@@ -196,20 +217,21 @@ if __name__ == '__main__':
         #scheduler.step()
 
         if args.prog:
-            show_prog(epoch, train_losses[epoch], val_losses[epoch], time.time()-start)
+            GANshow_prog(epoch, G_losses[epoch], G_acc[epoch], D_losses[epoch], D_acc[epoch],
+                         train_losses[epoch], train_sim_losses[epoch], val_losses[epoch], val_sim_losses[epoch], time.time()-start)
         
         best_loss = val_losses[epoch] == min(val_losses[:epoch+1])
         best_t_loss = train_losses[epoch] == min(train_losses[:epoch+1])
         
         #TODO: fix saving for GAN, model is no longer single entity
         if save:
-            save_prog(model, save_path, train_losses, val_losses, epoch, save_rate=10, best_loss=best_loss)
+            GANsave_prog(generator, discriminator, save_path, train_losses, val_losses, epoch, save_rate=10, best_loss=best_loss)
         
     # PLOT GRAPHS
     if save:
-        plotter(model_name, train_losses, val_losses, save=save_path, show=False)
+        GANplotter(model_name, G_losses, G_acc, D_losses, D_acc, train_losses, train_sim_losses, val_losses, val_sim_losses, save=save_path, show=False)
     else:
-        plotter(model_name, train_losses, val_losses, save=False, show=True)
+        GANplotter(model_name, G_losses, G_acc, D_losses, D_acc, train_losses, train_sim_losses, val_losses, val_sim_losses, save=False, show=True)
 
     print('Model:', model_name, 'completed ; ', epochs, 'epochs', 'in %ds' % (time.time()-start))
     print('min vl_loss: %0.5f at epoch %d' % (min(val_losses), val_losses.argmin()+1))
@@ -220,15 +242,19 @@ if __name__ == '__main__':
         loader = get_data_loader(batch_size=16, set=loader, shuffle=False)
         for data, _ in loader:
             inputs = data.to(args.device)
-            outputs,_,_ = generator(data)
+            outputs,_,_ = generator(inputs)
             for i in range(16):
-                plt.subplot('481')
                 output = np.transpose(outputs[i].detach().cpu().numpy(), [1,2,0])
                 original = np.transpose(inputs[i].detach().cpu().numpy(), [1,2,0])
                 plt.subplot(4, 8, i+1)
+                plt.axis('off')
                 plt.imshow(original)  
                 plt.subplot(4, 8, 16+i+1)
+                plt.axis('off')
                 plt.imshow(output)
+            
+            if save:
+                plt.savefig(save_path+'faces.png')
             plt.show()
 
             break
