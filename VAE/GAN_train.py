@@ -144,19 +144,18 @@ if __name__ == '__main__':
             # train decoder
             #   real photo
             output = discriminator(batch)
-            DR_err = criterion(output, ones_label)
+            DR_err = criterion(output, zeros_label)
 
             #   generated photo
             output = discriminator(rec_enc)
-            DF_err = criterion(output, zeros_label)
+            DF_err = criterion(output, ones_label)
 
             #   decoded noise
             output = discriminator(rec_noise)
-            DN_err = criterion(output, zeros_label)
+            DN_err = criterion(output, ones_label)
             
 
-            dis_loss = DR_err + DF_err + DN_err
-            G_l = -(dis_loss)
+            G_l = DR_err + DF_err + DN_err
             G_loss += G_l
 
             rec_loss = VAE_criterion(rec_enc, batch)
