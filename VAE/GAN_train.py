@@ -111,12 +111,12 @@ if __name__ == '__main__':
         D_acc_epoch = 0
         for batch, _ in train_loader:
             batch = batch.to(args.device)
-            ones_label = Variable(torch.ones(batch_size, 1))
-            zeros_label = Variable(torch.zeros(batch_size, 1))
+            ones_label = Variable(torch.ones(batch.shape[0], 1))
+            zeros_label = Variable(torch.zeros(batch.shape[0], 1))
             
             rec_enc, mu, logvar = generator(batch)
             
-            noisev = Variable(torch.randn(batch_size, args.latent))
+            noisev = Variable(torch.randn(batch.shape[0], args.latent))
             rec_noise = generator.decode(noisev)
             
             # train discriminator
