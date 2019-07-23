@@ -99,7 +99,7 @@ if __name__ == '__main__':
     discriminator = Discriminator(d_factor=args.dilation, fcl_size=args.fcl).to(args.device)
 
     #TODO: add loss control MSE/BCE
-    criterion = nn.MSELoss()
+    criterion = nn.BCELoss()
     VAE_criterion = nn.MSELoss()
     G_optimizer = optim.Adam(generator.parameters(), lr=args.lr / args.dboost)
     D_optimizer = optim.Adam(discriminator.parameters(), lr=args.lr)
