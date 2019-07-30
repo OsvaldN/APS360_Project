@@ -46,12 +46,14 @@ parser.add_argument('-dr', '--drop', action='store', default=0, type=float,
 ######## __OPTIM__ ########
 parser.add_argument('-lr', action='store', default=0.0005, type=float,
                     help='learning rate')
-parser.add_argument('-b1', action='store', default=0.9, type=float,
+parser.add_argument('-b1', action='store', default=0.5, type=float,
                     help='momentum')
 parser.add_argument('-b2', action='store', default=0.999, type=float,
                     help='momentum')
-parser.add_argument('-gamma', action='store', default=0.99, type=float,
+parser.add_argument('-gamma', action='store', default=0.999, type=float,
                     help='learning rate')
+parser.add_argument("--clip_value", default=1, type=float,
+                    help="lower and upper clip value for disc. weights")
 args = parser.parse_args()
 
 model_name = '_'.join(['db_'+str(args.dboost), 'l_'+str(args.latent), 'df_'+str(args.dilation), 'kld_'+str(args.beta),
@@ -108,11 +110,17 @@ if __name__ == '__main__':
     G_scheduler = optim.lr_scheduler.LambdaLR(G_optimizer, lr_lambda)
     D_scheduler = optim.lr_scheduler.LambdaLR(D_optimizer, lr_lambda)  
 
+
+    #TODO: 
+    #      don't train a net if it goes over ~%65 accuracy ??
     def train():
         G_loss, D_loss, VAE_loss, sim_loss = 0, 0, 0, 0
+        out_one, out_total = 0, 0
         D_acc_epoch, G_acc_epoch = 0, 0
+        parity = 1
         for batch, _ in train_loader:
             batch = batch.to(args.device)
+
             ones_label = Variable(torch.ones(batch.shape[0], 1))
             zeros_label = Variable(torch.zeros(batch.shape[0], 1))
             
@@ -121,79 +129,101 @@ if __name__ == '__main__':
             noisev = Variable(torch.randn(batch.shape[0], args.latent))
             rec_noise = generator.decode(noisev)
             
-            # train discriminator
-            #   real photo
-            output = discriminator(batch)
-            DR_loss = criterion(output, ones_label)
-            D_acc_epoch += ((torch.round(output) == ones_label).sum().cpu().numpy() / torch.numel(ones_label) )/6
-            G_acc_epoch += (1 - ((torch.round(output) == ones_label).sum().cpu().numpy() / torch.numel(ones_label) ))/6
+        
+            if parity:
+                ''' train discriminator '''
+                #   real photo
+                output = discriminator(batch)
+                out_one += torch.round(output).sum()
+                out_total += output.numel()
+                
+                DR_loss = criterion(output, ones_label * 0.9)
+                D_acc_epoch += ((torch.round(output) == ones_label).sum().cpu().numpy() / torch.numel(ones_label) )/3
+                G_acc_epoch += (1 - ((torch.round(output) == ones_label).sum().cpu().numpy() / torch.numel(ones_label) ))/3
 
-            #   reconstructed photo
-            output = discriminator(rec_enc)
-            DF_loss = criterion(output, zeros_label)
-            D_acc_epoch += ( (torch.round(output) == zeros_label).sum().cpu().numpy() / torch.numel(zeros_label) )/6
-            G_acc_epoch += (1 - ( (torch.round(output) == zeros_label).sum().cpu().numpy() / torch.numel(zeros_label) ))/6
+                #   reconstructed photo
+                output = discriminator(rec_enc)
+                out_one += torch.round(output).sum()
+                out_total += output.numel()
+                
+                DF_loss = 0.5* criterion(output, ones_label * 0.1)
+                D_acc_epoch += ( (torch.round(output) == zeros_label).sum().cpu().numpy() / torch.numel(zeros_label) )/3
+                G_acc_epoch += (1 - ( (torch.round(output) == zeros_label).sum().cpu().numpy() / torch.numel(zeros_label) ))/3
 
-            #   Decoded noise
-            output = discriminator(rec_noise)
-            DN_loss = criterion(output, zeros_label)
-            D_acc_epoch += ( (torch.round(output) == zeros_label).sum().cpu().numpy() / torch.numel(zeros_label) )/6
-            G_acc_epoch += (1- ( (torch.round(output) == zeros_label).sum().cpu().numpy() / torch.numel(zeros_label) ))/6
+                #   Decoded noise
+                output = discriminator(rec_noise)
+                out_one += torch.round(output).sum()
+                out_total += output.numel()
+                
+                DN_loss = 0.5 * criterion(output, ones_label * 0.1)
+                D_acc_epoch += ( (torch.round(output) == zeros_label).sum().cpu().numpy() / torch.numel(zeros_label) )/3
+                G_acc_epoch += (1- ( (torch.round(output) == zeros_label).sum().cpu().numpy() / torch.numel(zeros_label) ))/3
 
-            D_l = DR_loss + DF_loss + DN_loss
-            D_loss += D_l
+                D_l = DR_loss + DF_loss + DN_loss
+                D_loss += D_l
 
-            D_optimizer.zero_grad()
-            D_l.backward(retain_graph=True)
-            D_optimizer.step()
+                D_optimizer.zero_grad()
+                D_l.backward(retain_graph=True)
+                D_optimizer.step()
+
+                # Clip weights of discriminator
+                for p in discriminator.parameters():
+                    p.data.clamp_(-args.clip_value, args.clip_value)
             
-            # train decoder
-            #   real photo
-            output = discriminator(batch)
-            DR_err = criterion(output, zeros_label)
-            G_acc_epoch += ( (torch.round(output) == zeros_label).sum().cpu().numpy() / torch.numel(zeros_label) )/6
-            D_acc_epoch += (1- ( (torch.round(output) == zeros_label).sum().cpu().numpy() / torch.numel(zeros_label) ))/6
+            elif not parity:
+                ''' train decoder '''
+                #   generated photo
+                output = discriminator(rec_enc)
+                out_one += torch.round(output).sum()
+                out_total += output.numel()
+                
+                DF_err = criterion(output, ones_label * 0.9)
+                G_acc_epoch += ( (torch.round(output) == ones_label).sum().cpu().numpy() / torch.numel(zeros_label) )/2
+                D_acc_epoch += (1- ( (torch.round(output) == ones_label).sum().cpu().numpy() / torch.numel(zeros_label) ))/2
 
-            #   generated photo
-            output = discriminator(rec_enc)
-            DF_err = criterion(output, ones_label)
-            G_acc_epoch += ( (torch.round(output) == ones_label).sum().cpu().numpy() / torch.numel(zeros_label) )/6
-            D_acc_epoch += (1- ( (torch.round(output) == ones_label).sum().cpu().numpy() / torch.numel(zeros_label) ))/6
+                #   decoded noise
+                output = discriminator(rec_noise)
+                out_one += torch.round(output).sum()
+                out_total += output.numel()
+                
+                DN_err = criterion(output, ones_label * 0.1)
+                G_acc_epoch += ( (torch.round(output) == ones_label).sum().cpu().numpy() / torch.numel(zeros_label) )/2
+                D_acc_epoch += (1- ( (torch.round(output) == ones_label).sum().cpu().numpy() / torch.numel(zeros_label) ))/2
 
-            #   decoded noise
-            output = discriminator(rec_noise)
-            DN_err = criterion(output, ones_label)
-            G_acc_epoch += ( (torch.round(output) == ones_label).sum().cpu().numpy() / torch.numel(zeros_label) )/6
-            D_acc_epoch += (1- ( (torch.round(output) == ones_label).sum().cpu().numpy() / torch.numel(zeros_label) ))/6
+                # loss consolidation
+                G_l =  DF_err + DN_err
+                G_loss += G_l
 
-            G_l = DR_err + DF_err + DN_err
-            G_loss += G_l
-
+                
+                # optim step
+                G_optimizer.zero_grad()
+                G_l.backward(retain_graph=True)
+                G_optimizer.step()
+                
+            ''' train encoder '''
             rec_loss = VAE_criterion(rec_enc, batch)
             sim_loss += rec_loss
 
-            G_optimizer.zero_grad()
-            G_l.backward(retain_graph=True)
-            G_optimizer.step()
-            
-            # train encoder 
             prior_loss = 1 + logvar - mu.pow(2) - logvar.exp()
             prior_loss = (-0.5 * torch.sum(prior_loss))/torch.numel(mu)
             VAE_l = (args.beta * prior_loss) + rec_loss
             VAE_loss += VAE_l
-
+            
+            # encoding step
             G_optimizer.zero_grad()
             VAE_l.backward(retain_graph=True)
             G_optimizer.step()
-        
-        #TODO: update this loss tracking
-        # this is just to match VAE train.py
+
+            parity = not parity
+
+        print('fake guess ratio: %3f' % float(out_one/out_total))
         train_losses[epoch] = VAE_loss/len(train_loader)
         train_sim_losses[epoch] = sim_loss/len(train_loader)
         D_acc[epoch] = D_acc_epoch/len(train_loader)
         G_acc[epoch] = G_acc_epoch/len(train_loader)
         D_losses[epoch] = D_loss/len(train_loader)
         G_losses[epoch] = G_loss/len(train_loader)
+
 
     def valid():
         VAE_loss, sim_loss = 0, 0
@@ -215,7 +245,6 @@ if __name__ == '__main__':
         val_losses[epoch] = VAE_loss/len(valid_loader)
         val_sim_losses[epoch] = sim_loss/len(valid_loader)
 
-    #TODO: return lowest validation loss for hp tuning with hyperopt
     start = time.time()
     for epoch in range(epochs):
         train_loader = get_data_loader(batch_size=batch_size, set='train')
@@ -225,7 +254,7 @@ if __name__ == '__main__':
         generator.eval()
         discriminator.eval()
         valid()
-        #TODO: what type of LR decay for GAN?
+        #TODO: what type of LR decay for GAN? is it even necessary?
         G_scheduler.step()
         D_scheduler.step()
 

@@ -13,7 +13,7 @@ def get_data_loader(batch_size=64, set='train', shuffle=True):
   transform = transforms.Compose(
           [transforms.RandomRotation(5),
            transforms.RandomHorizontalFlip(p=0.5),
-           transforms.ColorJitter(brightness=0.2, contrast=0.2, saturation=0.2, hue=0.05),
+           transforms.ColorJitter(brightness=0.1, contrast=0.1, saturation=0.1, hue=0.05),
            transforms.ToTensor()])
 
   dataset = torchvision.datasets.ImageFolder(root='../../'+set+'_data', transform=transform)

@@ -8,7 +8,7 @@ import math
 class Encoder(nn.Module):
     '''
     '''
-    def __init__(self, in_channels=3, d_factor=4, latent_variable_size=100, activation='leakyrelu'):
+    def __init__(self, in_channels=3, d_factor=4, latent_variable_size=100, activation='SELU'):
         super(Encoder, self).__init__()
 
         self.in_channels = in_channels
@@ -17,6 +17,8 @@ class Encoder(nn.Module):
         
         if activation == 'leakyrelu':
             self.nonlinear = nn.LeakyReLU()
+        elif activation == 'ReLU':
+            self.nonlinear = nn.ReLU()
         elif activation == 'SELU':
             self.nonlinear = nn.SELU()
         
@@ -48,7 +50,7 @@ class Encoder(nn.Module):
 class Decoder(nn.Module):
     '''
     '''
-    def __init__(self, out_channels=3, c_factor=4, latent_variable_size=100, droprate=0, activation='leakyrelu'):
+    def __init__(self, out_channels=3, c_factor=4, latent_variable_size=100, droprate=0, activation='SELU'):
         super(Decoder, self).__init__()
 
         self.out_channels = out_channels
@@ -57,6 +59,8 @@ class Decoder(nn.Module):
         
         if activation == 'leakyrelu':
             self.nonlinear = nn.LeakyReLU()
+        elif activation == 'ReLU':
+            self.nonlinear = nn.ReLU()
         elif activation == 'SELU':
             self.nonlinear = nn.SELU()
 
@@ -89,7 +93,7 @@ class Decoder(nn.Module):
 class VAE(nn.Module):
     '''
     '''
-    def __init__(self, in_channels=3, d_factor=4, latent_variable_size=100, droprate=0, cuda=False, activation='leakyrelu'):
+    def __init__(self, in_channels=3, d_factor=4, latent_variable_size=100, droprate=0, cuda=False, activation='SELU'):
         super(VAE, self).__init__()
         
         self.cuda = cuda
@@ -128,7 +132,7 @@ class Discriminator(nn.Module):
         super(Discriminator, self).__init__()
        
         self.d_factor = d_factor
-        self.nonlinear = nn.SELU()
+        self.nonlinear = nn.LeakyReLU()
         
         self.bn1 = nn.BatchNorm2d(in_channels)
         self.conv1 = nn.Conv2d(in_channels, d_factor, kernel_size=4, stride=2, padding=1)

@@ -16,10 +16,10 @@ if __name__ == '__main__':
     save = False
 
     latent = 500
+    folder = '/home/osvald/Projects/APS360/APS360_Project/VAE/GAN_models/db_0.4_l_500_df_4_kld_0.001_b1_0.5_b2_0.999_lr_0.0005_g_0.999/'
+    state = 'gen_epoch100'
     model = VAE(d_factor=4, latent_variable_size=latent, cuda=False, activation='SELU')
-    #model.load_state_dict(torch.load('/home/osvald/Projects/APS360/APS360_Project/VAE/GAN_models/db_2.0_l_500_df_4_kld_0.001_b1_0.9_b2_0.999_lr_0.001_g_0.99/gen_epoch80'))
-    model.load_state_dict(torch.load('/home/osvald/Projects/APS360/APS360_Project/VAE/VAE_models/l_500_df_4_kld_0.01_b1_0.9_b2_0.999_lr_0.001_g_0.99/model_epoch200')) # SELU
-    #model.load_state_dict(torch.load('/home/osvald/Projects/APS360/APS360_Project/VAE/VAE_models/l_1000_df_8_kld_0.1_b1_0.9_b2_0.999_lr_0.001_g_0.0/best_loss'))   # leakyrelu
+    model.load_state_dict(torch.load(folder + state))
     model.eval()
 
     
