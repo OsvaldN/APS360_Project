@@ -29,11 +29,11 @@ parser.add_argument('-prog', action='store_true',
                     help='show progress')
 
 ######## __VAE__ ########
-parser.add_argument('-l', '--latent', action='store', default=1000, type=int,
+parser.add_argument('-l', '--latent', action='store', default=250, type=int,
                     help='latent embedding size')
 parser.add_argument('-kld', action='store', default=0.05, type=float,
                     help='KLD loss weight')
-parser.add_argument('-df', '--dilation', action='store', default=6, type=int,
+parser.add_argument('-df', '--dilation', action='store', default=20, type=int,
                     help='depth dilation factor')
 parser.add_argument('-dr', '--drop', action='store', default=0, type=float,
                     help='droprate')
@@ -161,7 +161,7 @@ if __name__ == '__main__':
 
         # show progress every epoch if enabled
         if args.prog:
-            show_prog(epoch, train_losses[epoch], train_sim_losses[epoch], val_losses[epoch], val_sim_losses[epoch], time.time()-start)
+            show_prog(epoch, train_losses[epoch], train_sim_losses[epoch], val_losses[epoch], val_sim_losses[epoch], time.time()-start, args.kld)
         
         # store best losses
         best_loss = val_losses[epoch] == min(val_losses[:epoch+1])

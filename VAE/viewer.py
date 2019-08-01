@@ -15,10 +15,11 @@ if __name__ == '__main__':
 
     save = False
 
-    latent = 500
-    folder = '/home/osvald/Projects/APS360/APS360_Project/VAE/GAN_models/db_0.4_l_500_df_4_kld_0.001_b1_0.5_b2_0.999_lr_0.0005_g_0.999/'
-    state = 'gen_epoch100'
-    model = VAE(d_factor=4, latent_variable_size=latent, cuda=False, activation='SELU')
+    latent = 100
+    dilation=16
+    folder = '/home/osvald/Projects/APS360/APS360_Project/VAE/GAN_models/l_200_df_16_kld_0.5_b1_0.5_b2_0.999_lr_0.001_g_0.99_db_2_gw_1.5'
+    state = '/gen_epoch20'
+    model = VAE(d_factor=dilation, latent_variable_size=latent, cuda=False, activation='SELU').to('cpu')
     model.load_state_dict(torch.load(folder + state))
     model.eval()
 
