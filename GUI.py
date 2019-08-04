@@ -6,6 +6,11 @@ from matplotlib.widgets import Slider
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 import torch
 
+'''
+    This function is called everytime the slider values are changed
+    The all the slider values are stored in a list called "val", and
+    a face will be generated based on "val" and plotted on the canvas    
+'''
 def update(val):
     val = []
     for i in range(40):
@@ -24,7 +29,7 @@ fig = plt.Figure()
 canvas = FigureCanvasTkAgg(fig, root)
 canvas.get_tk_widget().pack(side=Tk.TOP, fill=Tk.BOTH, expand=1)
 
-image = torch.randn(64, 64, 3)
+image = torch.ones(64, 64, 3)
 
 ax=fig.add_subplot(122)
 ax.imshow(image)
@@ -36,6 +41,5 @@ for i in range (40):
     s_time.append(Slider(ax_time, str(i), 0, 30, valinit=0))
     s_time[i].on_changed(update)
 
-
-
 Tk.mainloop()
+
