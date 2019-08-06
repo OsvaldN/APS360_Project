@@ -12,6 +12,7 @@ from sklearn.decomposition import PCA
 import torch
 
 '''
+    TODO: fix comments
     This function is called everytime the slider values are changed
     The all the slider values are stored in a list called "val", and
     a face will be generated based on "val" and plotted on the canvas    
@@ -65,7 +66,9 @@ fig = plt.Figure()
 canvas = FigureCanvasTkAgg(fig, root)
 canvas.get_tk_widget().pack(side=Tk.TOP, fill=Tk.BOTH, expand=1)
 
-
+#TODO: initialize with a face from dataloader
+#TODO: try with more PCs but just list the first 20
+#TODO: SR cycleGAN
 with torch.no_grad():
     image = model.decode(torch.zeros(500)).squeeze().permute(1,2,0)
 
