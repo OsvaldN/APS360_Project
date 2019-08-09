@@ -7,6 +7,7 @@ import matplotlib.pyplot as plt
 from matplotlib.widgets import Slider
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 from VAE_GAN import Encoder, Decoder, VAE
+from data_loader import raw_loader
 from sklearn.preprocessing import StandardScaler
 from sklearn.decomposition import PCA
 import torch
@@ -29,28 +30,20 @@ def get_model():
     model = VAE(d_factor=dilation, latent_variable_size=latent, cuda=False, activation='SELU').to('cpu')
     model.load_state_dict(torch.load(folder + state, map_location='cpu'))
     model.eval()
-    sc = pickle.load(open(folder+'\\std_scaler.p', 'rb'))
-    pca_components = pickle.load(open(folder+'\\components.p', 'rb'))
-    pca_mean = pickle.load(open(folder+'\\mean.p', 'rb'))
-    return model, sc, pca_components, pca_mean
+    sc = pickle.load(open(folder+'\\std_scaler500.p', 'rb'))
+    pca = pickle.load(open(folder+'\\pca500.p', 'rb'))
+    pca_components = pickle.load(open(folder+'\\components500.p', 'rb'))
+    pca_mean = pickle.load(open(folder+'\\mean500.p', 'rb'))
+    return model, sc, pca_components, pca_mean, pca
 
-model, sc, pca_components, pca_mean = get_model()
+model, sc, pca_components, pca_mean, pca = get_model()
 
-def pca_to_img(val, model=model, sc=sc, components=pca_components, mean=pca_mean):
-    '''
-    Transforms Principle components to latent distrribution
-    '''
-    z = np.dot(val, components) + mean
-    #z = sc.inverse_transform(z)
-    print(z.shape)
-    img = model.decode(torch.Tensor(z))
-    return(img)
+
 
 def update(val):
     val = []
     for i in range(30):
         val.append(s_time[i].val)
-        print(val[i])
 
     with torch.no_grad():
         image = pca_to_img(val).squeeze().permute(1,2,0)
@@ -66,11 +59,34 @@ fig = plt.Figure()
 canvas = FigureCanvasTkAgg(fig, root)
 canvas.get_tk_widget().pack(side=Tk.TOP, fill=Tk.BOTH, expand=1)
 
-#TODO: initialize with a face from dataloader
+#TODO: fix problem of PCA output differing from VAE reconstruction
+#       likely to do with reparameterization - try sampling from Gaussian w/ std logvar
 #TODO: try with more PCs but just list the first 20
 #TODO: SR cycleGAN
+loader = raw_loader(batch_size=1)
 with torch.no_grad():
-    image = model.decode(torch.zeros(500)).squeeze().permute(1,2,0)
+    for data, _ in loader:
+        inputs = data
+        mu, logvar = model.encode(inputs)
+        latent = sc.transform(mu)# + logvar)
+        pc = pca.transform(mu)#np.dot(latent-pca_mean, np.transpose(pca_components))
+        #z = np.dot(pc[0], pca_components) + pca_mean
+        #z = sc.inverse_transform(z)
+        image = model.decode(torch.Tensor(mu)).squeeze().permute(1,2,0)
+
+        #TODO: reshape pc to remove batch dim
+        break
+
+def pca_to_img(val, pc=pc[0], model=model, sc=sc, components=pca_components, mean=pca_mean):
+    '''
+    Transforms Principle components to latent distrribution
+    '''
+    for i in range(len(val)):
+        pc[i] = val[i]
+    z = np.dot(pc, components) + mean
+    z = sc.inverse_transform(z)
+    img = model.decode(torch.Tensor(z))
+    return(img)
 
 ax=fig.add_subplot(122)
 ax.imshow(image)
@@ -79,7 +95,7 @@ s_time = []
 
 for i in range (30):
     ax_time = fig.add_axes([0.05, 0.1+0.03*i, 0.4, 0.02])
-    s_time.append(Slider(ax_time, str(i), -10, 10, valinit=0))
+    s_time.append(Slider(ax_time, str(i), -10, 10, valinit=pc[0,i]))
     s_time[i].on_changed(update)
 
 Tk.mainloop()

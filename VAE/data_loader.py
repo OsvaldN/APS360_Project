@@ -16,6 +16,9 @@ def get_data_loader(batch_size=64, set='train', shuffle=True):
            transforms.ColorJitter(brightness=0.1, contrast=0.1, saturation=0.1, hue=0.05),
            transforms.ToTensor()])
 
+def raw_loader(batch_size=1, set='train', shuffle=True):
+  transform = transforms.ToTensor()
+
   dataset = torchvision.datasets.ImageFolder(root='../../'+set+'_data', transform=transform)
   train_loader = torch.utils.data.DataLoader(dataset, batch_size=batch_size, shuffle=shuffle)
   return train_loader

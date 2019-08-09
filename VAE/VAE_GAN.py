@@ -125,6 +125,53 @@ def reparametrize(mu, logvar, cuda=False):
         eps = Variable(eps)
         return eps.mul(std).add_(mu)
 
+class SRNet(nn.Module):
+    def __init__(self, in_channels=3, d_factor=4, activation='SELU'):
+        super(SRNet, self).__init__()
+
+        self.in_channels = in_channels
+        self.d_factor = d_factor
+        
+        if activation == 'leakyrelu':
+            self.nonlinear = nn.LeakyReLU()
+        elif activation == 'ReLU':
+            self.nonlinear = nn.ReLU()
+        elif activation == 'SELU':
+            self.nonlinear = nn.SELU()
+        
+        self.bn1 = nn.BatchNorm2d(in_channels)
+        self.downconv1 = nn.Conv2d(in_channels, d_factor, kernel_size=4, stride=2, padding=1)
+
+        self.bn2 = nn.BatchNorm2d(d_factor)
+        self.downconv2 = nn.Conv2d(d_factor, d_factor*2, kernel_size=4, stride=2, padding=1)
+
+        self.bn3 = nn.BatchNorm2d(d_factor*2)
+        self.downconv3 = nn.Conv2d(d_factor*2, d_factor*4, kernel_size=4, stride=2, padding=1)
+
+        self.bn4 = nn.BatchNorm2d(d_factor*4)
+        self.downconv4 = nn.Conv2d(d_factor*4, d_factor*8, kernel_size=4, stride=2, padding=1)
+
+        self.upconv1 = nn.ConvTranspose2d(d_factor*8, d_factor*4, padding=1, kernel_size=4, stride=2)
+
+        self.upconv2 = nn.ConvTranspose2d(d_factor*4*2, d_factor*2, padding=1, kernel_size=4, stride=2)
+
+        self.upconv3 = nn.ConvTranspose2d(d_factor*2*2, d_factor, padding=1, kernel_size=4, stride=2)
+
+        self.upconv4 = nn.ConvTranspose2d(d_factor*2, in_channels, padding=1, kernel_size=4, stride=2)
+        
+    def forward(self, X):
+        # down convs
+        X1 = self.nonlinear(self.downconv1(self.bn1(X)))
+        X2 = self.nonlinear(self.downconv2(self.bn2(X1)))
+        X3 = self.nonlinear(self.downconv3(self.bn3(X2)))
+        X4 = self.nonlinear(self.downconv4(self.bn4(X3)))
+        # up convs
+        X = self.upconv1(X4)
+        X = self.upconv2(torch.cat((X3,X),axis=2))
+        X = self.upconv3(torch.cat((X2,X),axis=2))
+        X = self.upconv4(torch.cat((X1,X),axis=2))
+        return self.sigmoid(X)
+
 class Discriminator(nn.Module):
     '''
     '''

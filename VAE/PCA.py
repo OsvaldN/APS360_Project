@@ -44,29 +44,19 @@ if __name__ == '__main__':
     model.eval()
 
     sc = StandardScaler()
-    pca = PCA(n_components=30)
+    pca = PCA(n_components=500)
 
     # Get latent distribution
     latent = get_latent_dist(model, n=None)
     # standardize latent distribution
     latent = sc.fit_transform(latent)
     # save standardized latent distribution
-    pickle.dump(sc, open( folder+'\\std_scaler.p', "wb" ) )
-    #pickle.dump(pca, open( folder+'\\std_scale.p', "wb" ) )
-    #pickle.dump(pca, open( folder+'\\std_mean.p', "wb" ) )
+    pickle.dump(sc, open( folder+'\\std_scaler500.p', "wb" ) )
 
     # perform PCA
     pca = pca.fit(latent)
     # save PCA
-    pickle.dump(pca, open( folder+'\\pca.p', "wb" ) )
-    pickle.dump(pca.components_, open( folder+'\\components.p', "wb" ) )
-    pickle.dump(pca.mean_, open( folder+'\\mean.p', "wb" ) )
+    pickle.dump(pca, open( folder+'\\pca500.p', "wb" ) )
+    pickle.dump(pca.components_, open( folder+'\\components500.p', "wb" ) )
+    pickle.dump(pca.mean_, open( folder+'\\mean500.p', "wb" ) )
     print(pca.explained_variance_ratio_)
-
-    '''
-    infile = open(folder+'\\scaling','rb')
-    sc = pickle.load(infile)
-    print(sc.get_params)
-    infile.close()
-    exit()
-    '''
