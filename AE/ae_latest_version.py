@@ -50,18 +50,10 @@ class AE3(nn.Module):
           nn.Conv2d(ndf, ndf*2, kernel_size=4, stride=2, padding=1),
           nn.ReLU(),
           nn.Conv2d(ndf*2, ndf*4, kernel_size=4, stride=2, padding=1),
-#           nn.ReLU(),
-#           nn.Conv2d(ndf*4, ndf*8, kernel_size=4, stride=2, padding=1),
-#           nn.ReLU(),
-#           nn.Conv2d(ndf*8, ndf*8, kernel_size=4, stride=2, padding=1)
         )    
 
         # decoder
         self.decoder = nn.Sequential(
-#           nn.ConvTranspose2d(ndf*8, ndf*8, kernel_size=4, stride=2, padding=1),
-#           nn.ReLU(),
-#           nn.ConvTranspose2d(ndf*8, ndf*4, kernel_size=4, stride=2, padding=1),
-#           nn.ReLU(),
           nn.ConvTranspose2d(ndf*4, ndf*2, kernel_size=4, stride=2, padding=1),
           nn.ReLU(),
           nn.ConvTranspose2d(ndf*2, ndf, kernel_size=4, stride=2, padding=1),
