@@ -10,6 +10,7 @@ Considering the complexity of the task, machine learning is an appropriate tool 
 The four models will be trained on the cleaned data (Figure 1). Quantitative assessment will be conducted by comparing MSE on the training set. However, the DC-GAN does not perform reconstruction so it will be assessed based on the quality of the generated faces. Ease of manipulating embeddings to generate new images will also be considered.
 
 ### 3.0 Background & Related Work
+Our project goal is to make an easy to control and effective face generating VAE. A recent state of the art model for face generation is Nvidia’s StyleGan [3]; however, such a model requires computing power beyond the reach of an undergraduate student. The GAN structure can be mimicked however by adding a discriminator as a loss function for out VAE. Discriminator networks are used to increase the photo-realism of VAE output [4]; this is intuitive because a loss such as MSE will push a model to generate blurry outputs that have a low expected pixel-wise loss. Principal Component Analysis will be used to simplify the face generation process. It has already been used in a non-academic setting to create easy to modify generated faces [5]
 
 
 ### 4.0 Architecture
