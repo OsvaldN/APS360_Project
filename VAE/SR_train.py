@@ -6,7 +6,7 @@ import torch
 import torch.nn as nn
 from torch import optim
 from torch.autograd import Variable
-from VAE_GAN import Encoder, Decoder, VAE, Discriminator, reparametrize
+from VAE_GAN import Encoder, Decoder, VAE, Discriminator, reparametrize, SRNet
 from data_loader import get_data_loader
 from util import GANplotter, GANsave_prog, GANshow_prog
 import matplotlib.pyplot as plt
