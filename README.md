@@ -166,7 +166,7 @@ The blurred output is solved by an Adversarial network loss function. DC-GAN cre
 Principal Component Analysis is used to restructure the latent space such that the most salient features can be identified. To avoid further information loss we do not use PCA as a dimensionality reduction tool but leave the same number of principal components as latent dimensions; the gain lies in the ordering of these dimensions by variance. By modifying these principle components we can modify faces or generate new ones with ease and significant control.
 
 <p align="center">
-<img src=/images/image4.png>	
+<img src=/images/image16.png>	
 </p>
 <p align="center">
 Figure 16. Face generation GUI
