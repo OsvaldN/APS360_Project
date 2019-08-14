@@ -2,6 +2,7 @@
 
 | | |
 ------------ | -------------
+Project Title |Face Generation using VAE and GANs
 Date | August 15, 2019
 Group Members(Name  Student Number) | Tianyi(Nora) Xu  1003130809, Heng(Carl) Zhou 1002951013, Osvald Nitski 1002456987
 Word Count | 1874
