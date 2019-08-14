@@ -28,7 +28,7 @@ Figure 1. Overall structure
 A recent state of the art model for face generation is Nvidia’s StyleGan [3]; however, such a model requires computing power beyond the reach of an undergraduate student. The GAN structure can be mimicked however by adding a discriminator as a loss function for out VAE. Discriminator networks are used to increase the photo-realism of VAE output [4]; this is intuitive because a loss such as MSE will push a model to generate blurry outputs that have a low expected pixel-wise loss. Principal Component Analysis will be used to simplify the face generation process. It has already been used in a non-academic setting to create easy to modify generated faces [5].
 
 ### 4.0 Data Processing
-Data processing is relatively straight forward for this project as the online resources are abundant. We are going to use LFWcrop Face Dataset (Figure 2) for this project. One advantage of this dataset is all the images are preprocessed. All backgrounds are cropped off and all the images are of the same size, which saved us a lot of data processing efforts. Another advantage is that the image size is small, which will largely reduce the training complexity.
+Data processing is relatively straight forward for this project as the online resources are abundant. We used the LFWcrop Face Dataset (Figure 2) for this project. One advantage of this dataset is that all the images are preprocessed, meaning all backgrounds are cropped off and all the images are of the same size. This saved us a lot of data processing efforts. Another advantage is the image size is small, which largely reduced the training complexity.
 
 <p align="center">
 <img src=/images/image2.png>	
