@@ -1,4 +1,6 @@
 ## APS360 Project Final Report
+
+First Header | Second Header
 ------------ | -------------
 Date | August 15, 2019
 Project Title | Face Generation using VAE and GANs
