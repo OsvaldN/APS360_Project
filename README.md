@@ -38,9 +38,9 @@ Figure 2. Example images from the dataset
 </p>
 
 To increase the number of images, the following data augmentation techniques will be applied to the images in each epoch. As a result, we will have a slightly different training set in each epoch.  
-A horizontal flipping with a probability of 50%.
-A random color jittering using torchvision.transforms.ColorJitter [6]. This function randomly changes the brightness, contrast, and saturation of an image.
-An image normalization such that all pixel intensities are between -1 and 1.
+1. A horizontal flipping with a probability of 50%.
+1. A random color jittering using torchvision.transforms.ColorJitter [6]. This function randomly changes the brightness, contrast, and saturation of an image.
+1. An image normalization such that all pixel intensities are between -1 and 1.
 
 The original dataset has 13,233 images in total. After applying the data augmentation techniques, we will obtain (13,233 * the number of epochs) images. Below are samples of the training images (Figure 3):
 
