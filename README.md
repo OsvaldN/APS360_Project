@@ -1,5 +1,5 @@
 ## APS360 Project Final Report
-
+------------ | -------------
 Date | August 15, 2019
 Project Title | Face Generation using VAE and GANs
 Group Members(Name  Student Number) | Tianyi(Nora) Xu  1003130809, Heng(Carl) Zhou 1002951013, Osvald Nitski 1002456987
