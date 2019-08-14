@@ -90,7 +90,7 @@ Figure 7. VAE-GAN
 </p>
 
 ### 6.0 Baseline Model
-Our baseline model is a convolutional autoencoder. We will train the autoencoder and test if random noise in the latent space yields a coherent reconstruction. Without constraints on the latent space, the training data is not likely to be normally or uniformly distributed throughout the embedding space, which leads to poor reconstruction. The depth of the autoencoder will be restricted to three since the AE serves only as a baseline.
+Our baseline model is a convolutional autoencoder. We trained the autoencoder and verified random noise in the latent space does not yield a coherent reconstruction. Without constraints on the latent space, the training data is not likely to be normally or uniformly distributed throughout the embedding space, which leads to poor reconstruction. The depth of the autoencoder is restricted to three since the AE only serves as a baseline.
 
 <p align="center">
 <img src=/images/image11.png>	
@@ -100,7 +100,7 @@ Figure 8. Baseline Model
 </p>
 
 ### 7.0 Quantitative and Qualitative Results
-The performance will be measured quantitatively by comparing the MSE loss on the training data. Generated images will be assessed qualitatively. The lowest MSE is reported below for each model. A DC-GAN has no comparable loss since it has no reconstruction element; a VAE-GAN will also be compared in the future.
+The performance are measured quantitatively by comparing the MSE loss on the training data. Generated images are assessed qualitatively. The lowest MSE is reported below for each model. A DC-GAN has no comparable loss since it has no reconstruction element; a VAE-GAN will also be compared in the future.
 
 <p align="center">
 <img src=/images/image1.png>	
@@ -109,7 +109,7 @@ The performance will be measured quantitatively by comparing the MSE loss on the
 Table 1. Training loss of all models
 </p>
 
-#### 7.1AutoEncoder
+#### 7.1 AutoEncoder
 The loss of AE drops rapidly at the first few epochs and then settles at an MSE off 0.0077. Since no constraints are placed on the latent space of the AE, the reconstruction of latent space noise yields nothing of interest.
   
 <p align="center">
@@ -120,7 +120,7 @@ Figure 9. Training loss of AE
 </p>
  
 #### 7.2 VAE
-Two VAE models performed well; one with a KLD weighting of 0.1 and the other with a KLD weighting of 0.01. While the model with lower KLD weighting achieved a better MSE loss its generative capabilities were inferior to the other model. This is because the latent space had a looser constraint and its final distribution differed substantially from a standard Gaussian - decoding noise yielded poor results. In both models, KLD loss stays incredibly stable leading us to believe that the distribution is optimized early and later epochs minimize reconstruction loss.
+Two VAE models performed well; one with a KLD weighting of 0.1 and the other with a KLD weighting of 0.01. While the model with lower KLD weighting achieved a better MSE loss, its generative capabilities were inferior to the other model. This is because the latent space had a looser constraint and its final distribution differed substantially from a standard Gaussian - decoding noise yielded poor results. In both models, KLD loss stays incredibly stable leading us to believe that the distribution is optimized early and later epochs minimize reconstruction loss.
 
 <p align="center">
 <img src=/images/image14.png>	
@@ -159,7 +159,7 @@ The DC-GAN generated distorted faces, yet much sharper than what the auto-encode
 <img src=/images/image4.png>	
 </p>
 <p align="center">
-Figure 18. Generated images from DC-GAN
+Figure 16. Generated images from DC-GAN
 </p>
 
 #### 7.4 VAE-GAN
@@ -178,15 +178,15 @@ Principal Component Analysis is used to restructure the latent space such that t
 <img src=/images/image16.png>	
 </p>
 <p align="center">
-Figure 16. Face generation GUI
+Figure 17. Face generation GUI
 </p>
 
 
 ### 9.0 Ethical Considerations
 
-As social media accounts for an ever-increasing amount of news consumption in our society, more safeguards will need to be placed on the verification of shared information. Generated images and videos can ease the spread of disinformation; the success of Cambridge Analytica on Facebook is but one warning of the dangers of disinformation spread in loosely regulated social networks. GAN training provides an insufficient solution by training a discriminator to detect false images/video/text. Solving this issue extends far beyond the scope of this course, however, being aware of it may help us make ethical choices in the future.
+As social media accounts for an ever-increasing amount of news consumption in our society, more safeguards will need to be placed on the verification of shared information. Generated images and videos can ease the spread of disinformation; the success of Cambridge Analytica on Facebook is but one warning of the dangers of disinformation spread in loosely regulated social networks. GAN training provides an insufficient solution by training a discriminator to detect false images/videos/texts. Solving this issue extends far beyond the scope of this course, however, being aware of it may help us make ethical choices in the future.
 
-Data privacy is yet another issue; there is no feasible way to guarantee that each image of a large dataset had the consent of the subject. Furthermore, for deployed applications there currently exists no exact method for “deleting” the data of an individual in the training set should they request it, besides the unappealing solution of retraining.
+Data privacy is yet another issue; there is no feasible way to guarantee that each image of a large dataset had the consent of the subject. Furthermore, for deployed applications, there currently exists no exact method for “deleting” the data of an individual in the training set should they request it, besides the unappealing solution of retraining.
 
 
 
