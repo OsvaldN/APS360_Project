@@ -1,12 +1,11 @@
 ## APS360 Project Final Report
-<p>value 1<br>value 2</p>
 |                           |                                    |
---------------------------- | ----------------------------------
-Project Title               | Face Generation using VAE and GANs
-Date                        | August 15, 2019
-<p>Group Members<br>(Name  Student Number)<br> </p>| <p>Tianyi(Nora) Xu  1003130809<br> Heng(Carl) Zhou 1002951013 <br> Osvald Nitski 1002456987 </p>
-Word Count                  | 1874
-Penalty                     | 0%
+|:---------------------------: | ----------------------------------
+|Project Title               | Face Generation using VAE and GANs |
+|Date                        | August 15, 2019                    |   
+|<p>Group Members<br>(Name  Student Number)</p>| <p>Tianyi(Nora) Xu  1003130809<br> Heng(Carl) Zhou 1002951013 <br> Osvald Nitski 1002456987 </p>|
+|Word Count                  | 1874 |
+|Penalty                     | 0%   |
 
 ### 1.0 Introduction
 The purpose of the project is to generate human faces that do not exist in the training set. Four models will be compared: An autoencoder (AE), a variational autoencoder (VAE), a Deep Convolutional Generative Adversarial Network (DC-GAN), and a Variational Autoencoder Generative Adversarial Network (VAE-GAN). All models will be trained on a processed version of the publicly available LFW face dataset.
