@@ -8,14 +8,14 @@
 |Penalty                     | 0%   |
 
 ### 1.0 Introduction
-The purpose of the project is to generate human faces that do not exist in the training set. Four models will be compared: An autoencoder (AE), a variational autoencoder (VAE), a Deep Convolutional Generative Adversarial Network (DC-GAN), and a Variational Autoencoder Generative Adversarial Network (VAE-GAN). All models will be trained on a processed version of the publicly available LFW face dataset.
+The purpose of the project is to generate human faces that do not exist in the training set. Four models are compared: An autoencoder (AE), a variational autoencoder (VAE), a Deep Convolutional Generative Adversarial Network (DC-GAN), and a Variational Autoencoder Generative Adversarial Network (VAE-GAN). All models are trained on a processed version of the publicly available LFW face dataset.
 
-Our motivation is to learn about different face generation architectures since there are many applications related to face generation, which includes police sketching and data augmentation. We are also interested in assessing the effects of GANs on face generation. We would like to determine if GANs create sharper reconstructions and whether a VAE-GAN has more control over a generation due to the restrictions on its latent space [1].
+Our motivation is to learn about different face generation architectures since there are many applications related to face generation, including police sketching and data augmentation. We are also interested in assessing the effects of GANs on face generation. We would like to determine if GANs create sharper reconstructions and whether a VAE-GAN has more control over a generation due to the restrictions on its latent space [1].
 
 Considering the complexity of the task, machine learning is an appropriate tool for it; face generation is a task that does not lend itself to rules-based systems. Unlike traditional algorithms, machine learning algorithms can learn from large amounts of input data and create new data based on the structure of existing data [2].
 
 ### 2.0 Illustration
-The four models will be trained on the cleaned data (Figure 1). Quantitative assessment will be conducted by comparing MSE on the training set. However, the DC-GAN does not perform reconstruction so it will be assessed based on the quality of the generated faces. Ease of manipulating embeddings to generate new images will also be considered.
+An AE, a VAE, a DC-GAN, and a VAE-GAN are trained on the cleaned data (Figure 1). Quantitative assessments are conducted by comparing MSE on the training set. However, the DC-GAN does not perform reconstruction so it will be assessed based on the quality of the generated faces. Ease of manipulating embeddings to generate new images is also considered.
 
 <p align="center">
 <img src=/images/image15.png>
@@ -25,7 +25,7 @@ Figure 1. Overall structure
 </p>
 
 ### 3.0 Background & Related Work
-A recent state of the art model for face generation is Nvidia’s StyleGan [3]; however, such a model requires computing power beyond the reach of an undergraduate student. The GAN structure can be mimicked however by adding a discriminator as a loss function for out VAE. Discriminator networks are used to increase the photo-realism of VAE output [4]; this is intuitive because a loss such as MSE will push a model to generate blurry outputs that have a low expected pixel-wise loss. Principal Component Analysis will be used to simplify the face generation process. It has already been used in a non-academic setting to create easy to modify generated faces [5].
+A recent state of the art model for face generation is Nvidia’s StyleGan [3]; however, such a model requires computing power beyond the reach of undergraduate students. The GAN structure can be mimicked however by adding a discriminator as a loss function for our VAE. Discriminator networks are used to increase the photo-realism of VAE output [4]; this is intuitive because a loss such as MSE will push a model to generate blurry outputs that have a low expected pixel-wise loss. Principal Component Analysis will be used to simplify the face generation process. It has already been used in a non-academic setting to create easy to modify generated faces [5].
 
 ### 4.0 Data Processing
 Data processing is relatively straight forward for this project as the online resources are abundant. We used the LFWcrop Face Dataset (Figure 2) for this project. One advantage of this dataset is that all the images are preprocessed, meaning the backgrounds are cropped off and all the images are of the same size. This saved us a lot of data processing efforts. Another advantage is the image size is small, which largely reduced the training complexity.
@@ -53,7 +53,7 @@ Figure 3. Training images
 
 ### 5.0 Architecture
 #### 5.1 VAE
-The Variational Autoencoder has 4 convolutional and 4 convolutional transpose layers. Batch normalization [7] is added at all convolutional layers, and the activation function has been changed to leaky ReLU [8] to aid training. The latent space is modeled as a standard Gaussian distribution. The similarity between the learned representation and a standard Gaussian is controlled by penalizing Kullback-Leibler Divergence (KLD) between the two [9]. The weight of the KLD loss relative to the pixel-wise loss is treated as a hyperparameter. New samples can be generated by drawing form a standard Gaussian in the latent space.
+The Variational Autoencoder has 4 convolutional and 4 convolutional transpose layers (Figure 4). Batch normalization [7] is added at all convolutional layers, and the activation function has been changed to leaky ReLU [8] to aid training. The latent space is modeled as a standard Gaussian distribution. The similarity between the learned representation and a standard Gaussian is controlled by penalizing Kullback-Leibler Divergence (KLD) between the two [9]. The weight of the KLD loss relative to the pixel-wise loss is treated as a hyperparameter. New samples can be generated by drawing form a standard Gaussian in the latent space.
 
 <p align="center">
 <img src=/images/image5.png>	
@@ -63,7 +63,7 @@ Figure 4. VAE
 </p>
 
 #### 5.2 DC-GAN
-The DC-GAN consists of a generator and a discriminator. The generator is made up of four convolutional transpose layers and each layer is followed by a batch normalization and ReLU layer. Since the images’ pixel intensities in the dataset are normalized to -1 to 1 during data processing, a tanh layer is attached at the end of the generator to remain consistent with the range. Similarly, the discriminator has five convolutional layers and each layer is followed by a leaky ReLU and batch normalization layer. A sigmoid activation will be applied at the end to produce a probability.
+The DC-GAN consists of a generator (Figure 5) and a discriminator (Figure 6). The generator is made up of four convolutional transpose layers and each layer is followed by a batch normalization and ReLU layer. Since the images’ pixel intensities in the dataset are normalized to -1 to 1 during data processing, a tanh layer is attached at the end of the generator to remain consistent with the range. Similarly, the discriminator has five convolutional layers and each layer is followed by a leaky ReLU and batch normalization layer. A sigmoid activation will be applied at the end to produce a probability.
 
 <p align="center">
 <img src=/images/image13.png>	
@@ -80,7 +80,7 @@ Figure 6. Discriminator of DC-GAN
 </p>
 
 #### 5.3 VAE-GAN
-The same VAE architecture described above (section 5.1) is used for reconstruction. A 5 layer convolutional, batch-normed, leaky ReLU network with sigmoid output is used as the discriminator. Binary Cross-Entropy loss is used as the objective function for GAN training since the labels are binary values. The training cycle alternates training the discriminator and the generator. During discriminator training, the loss is calculated on equally sized batches of original images, their reconstructions, and standard Gaussian noise reconstructed from the decoder of the VAE. The generator is then trained with the discriminator loss on these same three groups; VAE MSE reconstruction loss and KLD loss are then backpropagated to further incentivize accurate reconstruction and a Gaussian distributed latent space.
+The same VAE architecture described above (section 5.1) is used for reconstruction. A 5 layer convolutional, batch-normed, leaky ReLU network with sigmoid output is used as the discriminator (Figure 7). Binary Cross-Entropy loss is used as the objective function for GAN training since the labels are binary values. The training cycle alternates training the discriminator and the generator. During discriminator training, the loss is calculated on equally sized batches of original images, their reconstructions, and standard Gaussian noise reconstructed from the decoder of the VAE. The generator is then trained with the discriminator loss on these same three groups; VAE MSE reconstruction loss and KLD loss are then backpropagated to further incentivize accurate reconstruction and a Gaussian distributed latent space.
 
 <p align="center">
 <img src=/images/image17.png>	
@@ -90,7 +90,7 @@ Figure 7. VAE-GAN
 </p>
 
 ### 6.0 Baseline Model
-Our baseline model is a convolutional autoencoder. We trained the autoencoder and verified random noise in the latent space does not yield a coherent reconstruction. Without constraints on the latent space, the training data is not likely to be normally or uniformly distributed throughout the embedding space, which leads to poor reconstruction. The depth of the autoencoder is restricted to three since the AE only serves as a baseline.
+Our baseline model is a convolutional autoencoder(Figure 8). We trained the autoencoder and verified random noise in the latent space does not yield a coherent reconstruction. Without constraints on the latent space, the training data is not likely to be normally or uniformly distributed throughout the embedding space, which leads to poor reconstruction. The depth of the autoencoder is restricted to three since the AE only serves as a baseline.
 
 <p align="center">
 <img src=/images/image11.png>	
@@ -100,7 +100,7 @@ Figure 8. Baseline Model
 </p>
 
 ### 7.0 Quantitative and Qualitative Results
-The performance are measured quantitatively by comparing the MSE loss on the training data. Generated images are assessed qualitatively. The lowest MSE is reported below for each model. A DC-GAN has no comparable loss since it has no reconstruction element; a VAE-GAN will also be compared in the future.
+The performance are measured quantitatively by comparing the MSE loss on the training data. Generated images are assessed qualitatively. The lowest MSE is reported below for each model(Table 1). A DC-GAN has no comparable loss since it has no reconstruction element; a VAE-GAN will also be compared in the future.
 
 <p align="center">
 <img src=/images/image1.png>	
@@ -110,7 +110,7 @@ Table 1. Training loss of all models
 </p>
 
 #### 7.1 AutoEncoder
-The loss of AE drops rapidly at the first few epochs and then settles at an MSE off 0.0077. Since no constraints are placed on the latent space of the AE, the reconstruction of latent space noise yields nothing of interest.
+The loss of AE drops rapidly at the first few epochs and then settles at an MSE off 0.0077(Figure 9). Since no constraints are placed on the latent space of the AE, the reconstruction of latent space noise yields nothing of interest.
   
 <p align="center">
 <img src=/images/image12.png>	
@@ -126,14 +126,14 @@ Two VAE models performed well; one with a KLD weighting of 0.1 and the other wit
 <img src=/images/image14.png>	
 </p>
 <p align="center">
-Figure 12. Training loss of VAE with 0.1 KLD loss
+Figure 10. Training loss of VAE with 0.1 KLD loss
 </p>
  
 <p align="center">
 <img src=/images/image3.png>	
 </p>
 <p align="center">
-Figure 13. Training loss of VAE with 0.01 KLD loss
+Figure 11. Training loss of VAE with 0.01 KLD loss
 </p>
 
 The qualitative examination of reconstructed faces confirms that placing more weight on constraining the latent distribution causes reconstruction quality to suffer. Below are faces generated by reconstructing Gaussian noise from both models’ latent spaces. Rows are ordered by standard deviation; beginning at 0.25 and increasing to 2.0 in 0.25 increments. The first row shows faces considered more prototypical by the VAE; as the standard deviation increases more interesting faces emerge.
@@ -142,24 +142,24 @@ The qualitative examination of reconstructed faces confirms that placing more we
 <img src=/images/image8.png>	
 </p>
 <p align="center">
-Figure 14. Generated images from VAE with KLD 0.1 loss
+Figure 12. Generated images from VAE with KLD 0.1 loss
 </p>
 
 <p align="center">
 <img src=/images/image7.png>	
 </p>
 <p align="center">
-Figure 15. Generated images from VAE with KLD 0.01 loss
+Figure 13. Generated images from VAE with KLD 0.01 loss
 </p>
 
 #### 7.3 DC-GAN
-The DC-GAN generated distorted faces, yet much sharper than what the auto-encoders produced. Without control of the sampling space as in probabilistic models, it is difficult to generate a specific type of face.
+The DC-GAN generated distorted faces, yet much sharper than what the auto-encoders produced(Figure 14). Without control of the sampling space as in probabilistic models, it is difficult to generate a specific type of face.
 	
 <p align="center">
 <img src=/images/image4.png>	
 </p>
 <p align="center">
-Figure 16. Generated images from DC-GAN
+Figure 14. Generated images from DC-GAN
 </p>
 
 #### 7.4 VAE-GAN
@@ -172,13 +172,13 @@ Our VAE permits controlled generation and achieves lower MSE reconstruction loss
 
 The blurred output is solved by an Adversarial network loss function. DC-GAN creates sharper outputs yet has very little control over what image is generated since there are no constraints on the input space; noise is used to generate images in this model. The VAE-GAN failed to improve solve these issues, a balance could not be struck between generative control image quality. We believe this issue could be solved by a larger training set and a convolutional architecture that uses residual connections.
 
-Principal Component Analysis is used to restructure the latent space such that the most salient features can be identified. To avoid further information loss we do not use PCA as a dimensionality reduction tool but leave the same number of principal components as latent dimensions; the gain lies in the ordering of these dimensions by variance. By modifying these principle components we can modify faces or generate new ones with ease and significant control.
+Principal Component Analysis is used to restructure the latent space such that the most salient features can be identified. To avoid further information loss we do not use PCA as a dimensionality reduction tool but leave the same number of principal components as latent dimensions; the gain lies in the ordering of these dimensions by variance. We built a GUI to allow users to modify these principle components and generate faces with ease and significant control(Figure 15).
 
 <p align="center">
 <img src=/images/image16.png>	
 </p>
 <p align="center">
-Figure 17. Face generation GUI
+Figure 15. Face generation GUI
 </p>
 
 
