@@ -8,6 +8,7 @@ Considering the complexity of the task, machine learning is an appropriate tool 
 ### 2.0 Illustration
 The four models will be trained on the cleaned data (Figure 1). Quantitative assessment will be conducted by comparing MSE on the training set. However, the DC-GAN does not perform reconstruction so it will be assessed based on the quality of the generated faces. Ease of manipulating embeddings to generate new images will also be considered.
 
+<img align="center" width="600" height="200" src=/images/image15.png>
 <p align="center">
 ![GitHub Logo](/images/image15.png)
 </p>
