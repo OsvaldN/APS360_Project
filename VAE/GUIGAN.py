@@ -22,18 +22,20 @@ def get_model():
     '''
     TODO: parameterize all of this
     '''
-    latent = 500
-    dilation=20
-    folder = '/home/osvald/Projects/APS360/APS360_Project/VAE/GAN_models/l_200_df_16_kld_0.5_b1_0.5_b2_0.999_lr_0.001_g_0.99_db_2_gw_1.5'
-    folder = "C:\\Users\\osval\\Documents\\School\\APS360\\APS360_Project\\VAE\\VAE_models\\l_500_df_20_kld_0.01_b1_0.9_b2_0.999_lr_0.001_g_0.99"
-    state = '\\model_epoch150'
+    latent = 1000
+    dilation= 16
+    #folder = '/home/osvald/Projects/APS360/APS360_Project/VAE/GAN_models/l_200_df_16_kld_0.5_b1_0.5_b2_0.999_lr_0.001_g_0.99_db_2_gw_1.5'
+    #folder = "C:\\Users\\osval\\Documents\\School\\APS360\\APS360_Project\\VAE\\VAE_models\\l_500_df_20_kld_0.01_b1_0.9_b2_0.999_lr_0.001_g_0.99"
+    #state = '\\model_epoch150'
+    folder = "C:\\Users\\osval\\Documents\\School\\APS360\\APS360_Project\\VAE\\GAN_models\\db_1.0_l_1000_df_16_kld_0.001_b1_0.5_b2_0.999_lr_0.0005_g_0.99"
+    state = '\\gen_epoch120'
     model = VAE(d_factor=dilation, latent_variable_size=latent, cuda=False, activation='SELU').to('cpu')
     model.load_state_dict(torch.load(folder + state, map_location='cpu'))
     model.eval()
-    sc = pickle.load(open(folder+'\\std_scaler500.p', 'rb'))
-    pca = pickle.load(open(folder+'\\pca500.p', 'rb'))
-    pca_components = pickle.load(open(folder+'\\components500.p', 'rb'))
-    pca_mean = pickle.load(open(folder+'\\mean500.p', 'rb'))
+    sc = pickle.load(open(folder+'\\std_scaler.p', 'rb'))
+    pca = pickle.load(open(folder+'\\pca.p', 'rb'))
+    pca_components = pickle.load(open(folder+'\\components.p', 'rb'))
+    pca_mean = pickle.load(open(folder+'\\mean.p', 'rb'))
     return model, sc, pca_components, pca_mean, pca
 
 model, sc, pca_components, pca_mean, pca = get_model()
