@@ -1,5 +1,5 @@
 ## APS360 Project Final Report
-                                              |                                          |
+|                                              |                                          |
 |:---------------------------: | --------------------------------------------------------------|                         
 |Project Title               | Face Generation using VAE and GANs                              |
 |Date                        | August 15, 2019                                                 |   
