@@ -6,7 +6,7 @@ import torch.nn as nn
 from sklearn.preprocessing import StandardScaler
 from sklearn.decomposition import PCA
 from VAE_GAN import Encoder, Decoder, VAE
-from data_loader import get_data_loader
+from data_loader import get_data_loader, raw_loader
 from viewer import show_samples, generate
 import matplotlib.pyplot as plt
    
