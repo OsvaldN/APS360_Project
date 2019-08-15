@@ -1,12 +1,12 @@
 ## APS360 Project Final Report
-<p align="center">                                                  |                                          |
+                                              |                                          |
 |:---------------------------: | --------------------------------------------------------------|                         
 |Project Title               | Face Generation using VAE and GANs                              |
 |Date                        | August 15, 2019                                                 |   
 |<p>Group Members<br>(Name  Student Number)</p>| <p>Tianyi(Nora) Xu  1003130809<br> Heng(Carl) Zhou 1002951013 <br> Osvald Nitski 1002456987 </p>|
 |Word Count                  | 1874 |
 |Penalty                     | 0%   |
-</p>
+
 ### 1.0 Introduction
 The purpose of the project is to generate human faces that do not exist in the training set. Four models are compared: An autoencoder (AE), a variational autoencoder (VAE), a Deep Convolutional Generative Adversarial Network (DC-GAN), and a Variational Autoencoder Generative Adversarial Network (VAE-GAN). All models are trained on a processed version of the publicly available LFW face dataset.
 
@@ -102,7 +102,6 @@ Figure 8. Baseline Model
 ### 7.0 Quantitative and Qualitative Results
 The performance are measured quantitatively by comparing the MSE loss on the training data. Generated images are assessed qualitatively. The lowest MSE is reported below for each model(Table 1). A DC-GAN has no comparable loss since it has no reconstruction element.
 
-<p align="center">
 |Model                         | KLD relative weight                     |Training Loss (MSE only) |   
 |----------------------------- | ----------------------------------------|-------------------------|                         
 |Autoencoder                   | N/A                                     |0.0077                   |
@@ -110,7 +109,6 @@ The performance are measured quantitatively by comparing the MSE loss on the tra
 |VAE                           | 0.1                                     |0.0042                   |
 |VAE                           | 0.01                                    |0.0037                   |
 |VAE-GAN                       | N/A                                     |0.0012                   |
-</p>
 <p align="center">
 Table 1. Training loss of all models
 </p>
