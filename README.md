@@ -108,7 +108,7 @@ The performance are measured quantitatively by comparing the MSE loss on the tra
 |VAE                           | 0.2                                     |0.0106                   |
 |VAE                           | 0.1                                     |0.0042                   |
 |VAE                           | 0.01                                    |0.0037                   |
-|VAE-GAN                       | N/A                                     |0.0012                   |
+|VAE-GAN                       | 0.01                                    |0.0012                   |
 <p align="center">
 Table 1. Training loss of all models
 </p>
