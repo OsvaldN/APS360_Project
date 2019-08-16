@@ -167,8 +167,21 @@ Figure 14. Generated images from DC-GAN
 </p>
 
 #### 7.4 VAE-GAN
-Despite stable training and trying batch-normalization, discriminator pre-training, varying levels of dropout, various activation functions, and architectures, the VAE-GAN did not perform as desired. Depending on the relative weighting between the KLD and GAN loss the model would perform as one of the two and never quite gain the benefits from both. We believe further experimentation with VQ-VAE architecture or dense convolutions may help this issue. It comes to our relief that as of 2018 DeepMind researchers themselves claim “Currently, VAE -GANs do not deliver on their promise to stabilize GAN training or improve VAEs”[10].
+Despite stable training and trying batch-normalization, discriminator pre-training, varying levels of dropout, various activation functions, and architectures, the VAE-GAN did not perform as desired. Depending on the relative weighting between the KLD and GAN loss the model would perform as one of the two and never quite gain the benefits from both. We believe further experimentation with VQ-VAE architecture or dense convolutions may help this issue. It comes to our relief that as of 2018 DeepMind researchers themselves claim “Currently, VAE -GANs do not deliver on their promise to stabilize GAN training or improve VAEs”[10]. Despit this difficulty, loss and example of a generated face are below.
 
+<p align="center">
+<img src=/images/reconstruction_loss.png>
+</p>
+<p align="center">
+Figure 15. Training loss of VAE-GAN
+</p>
+
+<p align="center">
+<img src=/images/vaegan.png>
+</p>
+<p align="center">
+Figure 16. Generated image from VAE-GAN GUI
+</p>
 
 ### 8.0 Discussion
 The AE has limited control over face generation since it is not able to generate faces through random noise in the embedding space. Perturbations of a trained image’s encoding allow modification of a specific image, however, this is not a sufficient amount of generative freedom.
@@ -182,7 +195,7 @@ Principal Component Analysis is used to restructure the latent space such that t
 <img src=/images/image16.png>	
 </p>
 <p align="center">
-Figure 15. Face generation GUI
+Figure 17. Face generation GUI
 </p>
 
 
