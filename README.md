@@ -177,7 +177,7 @@ Figure 15. Training loss of VAE-GAN
 </p>
 
 <p align="center">
-<img src=/images/vaegan.png>
+<img src=/images/vaegan.PNG>
 </p>
 <p align="center">
 Figure 16. Generated image from VAE-GAN GUI
